@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const cors = require("cors");
 const app = express();
+const routes = require("./routes/indexRoutes");
 const PORT_DEFAULT = 8000;
 connectDB();
 // Init middleware
@@ -13,6 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
 app.use(helmet());
+
+app.use("/api/v1", routes);
 
 /**
  * Normalize a port into a number, string, or false.
