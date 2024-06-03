@@ -12,7 +12,9 @@ router.get("/", (req, res) => {
  * @route POST api/users
  * @access Private available for Admin
  */
-router.post(
+
+//loclahost:8000/register
+http: router.post(
   "/register" /*, middleware.validateRegister*/,
   user.userRegisterUser
 );

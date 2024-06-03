@@ -15,6 +15,7 @@ app.use(cors());
 app.use(cookieParser());
 app.use(helmet());
 
+//chaque route de l'api commence par /api/v1
 app.use("/api/v1", routes);
 
 /**
