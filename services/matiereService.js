@@ -1,36 +1,43 @@
-const Matiere = require("../models/MatiereModel");
 const { HttpError } = require('../utils/exceptions');
+const Matiere = require("../models/MatiereModel")
 
 
 class MatiereService {
-
   static async createMatiere(matiereData) {
     try {
-      const existingMatiere = await Matiere.findOne({ intitule: matiereData.intitule });
+      // Vérifier si une matière avec le même intitulé existe déjà
+      const existingMatiere = await Matiere.findOne({
+        intitule: matiereData.intitule,
+        isDelete: false
+      });
       if (existingMatiere) {
-        throw new HttpError(null, 409, 'Cette matière existe déjà');
+        throw new HttpError(null, 400, `La matière ${matiereData.intitule} existe déjà`);
       }
-  
-      const matiere = new Matiere(matiereData);
-      return await matiere.save();
+
+      // Créer une nouvelle matière si elle n'existe pas déjà
+      const matiere = await Matiere.create(matiereData);
+      return matiere;
     } catch (error) {
-      console.error(error);
-      throw new HttpError(error, 500, 'Erreur interne du serveur');
+      throw new HttpError(error, error.statusCode || 500, error.message || 'Erreur interne du serveur');
     }
   }
 
   static async getAllMatieres() {
     try {
-      return await Matiere.find();
+      return await Matiere.find({ isDelete: false });
     } catch (error) {
       console.error(error);
       throw new HttpError(error, 500, 'Erreur interne du serveur');
     }
   }
 
-  static async getMatiereById(id) {
+  static async getMatiereById(matiereId) {
     try {
-      const matiere = await Matiere.findById(id);
+      const matiere = await Matiere.findOne({
+        _id: matiereId,
+        isDelete: false
+      });
+
       if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
       return matiere;
     } catch (error) {
@@ -39,9 +46,16 @@ class MatiereService {
     }
   }
 
-  static async updateMatiere(id, updatedMatiereData) {
+  static async updateMatiere(matiereId, updatedMatiereData) {
     try {
-      const matiere = await Matiere.findByIdAndUpdate(id, updatedMatiereData, { new: true });
+      const matiere = await Matiere.findOneAndUpdate({
+        _id: matiereId,
+        isDelete: false
+      },
+        updatedMatiereData,
+        { new: true }
+      );
+
       if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
       return matiere;
     } catch (error) {
@@ -50,9 +64,16 @@ class MatiereService {
     }
   }
 
-  static async deleteMatiere(id) {
+  static async deleteMatiere(matiereId) {
     try {
-      const matiere = await Matiere.findByIdAndDelete(id);
+      const matiere = await Matiere.findOneAndUpdate({
+        _id: matiereId,
+        isDelete: false
+      },
+        { isDelete: true },
+        { new: true }
+      );
+
       if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
       return matiere;
     } catch (error) {
@@ -60,53 +81,6 @@ class MatiereService {
       throw new HttpError(error, 500, 'Erreur interne du serveur');
     }
   }
-
-  static addChapitreToMatiere = async (matiereId, chapitreData) => {
-    try {
-      const matiere = await Matiere.findById(matiereId);
-      if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
-
-      matiere.chapitres.push(chapitreData);
-      await matiere.save();
-      return matiere;
-    } catch (error) {
-      console.error(error);
-      throw new HttpError(error, 500, 'Erreur interne du serveur');
-    }
-  }
-
-
-  static async updateChapitreInMatiere(matiereId, chapitreId, updatedChapitreData) {
-    try {
-      const matiere = await Matiere.findById(matiereId);
-      if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
-
-      const chapitre = matiere.chapitres.id(chapitreId);
-      if (!chapitre) throw new HttpError(null, 404, 'Chapitre non trouvé');
-
-      chapitre.set(updatedChapitreData);
-      await matiere.save();
-      return matiere;
-    } catch (error) {
-      console.error(error);
-      throw new HttpError(error, 500, 'Erreur interne du serveur');
-    }
-  }
-
- static async deleteChapitreFromMatiere(matiereId, chapitreId) {
-  try {
-    const matiere = await Matiere.findById(matiereId);
-    if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
-
-    matiere.chapitres.pull({ _id: chapitreId }); // Utilisation de pull pour supprimer le sous-document du tableau
-    await matiere.save();
-    return matiere;
-  } catch (error) {
-    console.error(error);
-    throw new HttpError(error, 500, 'Erreur interne du serveur');
-  }
-}
-
 }
 
 module.exports = MatiereService;
