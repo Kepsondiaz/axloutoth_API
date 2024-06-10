@@ -1,28 +1,29 @@
 const express = require("express");
 const connectDB = require("./config/db.config");
-const http = require("http");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const cors = require("cors");
-const app = express();
 const routes = require("./routes/indexRoutes");
+
 const PORT_DEFAULT = 8000;
+
+// Connect to the database
 connectDB();
-// Init middleware
+
+// Initialize Express app
+const app = express();
+
+// Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
 app.use(helmet());
 
-//chaque route de l'api commence par /api/v1
+// Prefix all API routes with /api/v1
 app.use("/api/v1", routes);
 
-/**
- * Normalize a port into a number, string, or false.
- * @param {any} val - Port value
- * @returns {number|string|boolean} - Normalized port
- */
+// Function to normalize a port into a number, string, or false.
 const normalizePort = (val) => {
   const port = parseInt(val, 10);
   if (isNaN(port)) return val;
@@ -31,13 +32,6 @@ const normalizePort = (val) => {
 };
 
 const PORT = normalizePort(process.env.PORT || PORT_DEFAULT);
-/**
- * Server listening on specified port.
- * @name ServerListening
- * @function
- * @memberof module:RandomIdeasAPI
- * @inner
- * @param {number|string} port - Port number
- */
 
+// Start the server and listen on the specified port
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
