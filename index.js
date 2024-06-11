@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const cors = require("cors");
 const routes = require("./routes/indexRoutes");
+require('dotenv').config();
+
 
 const PORT_DEFAULT = 8000;
 

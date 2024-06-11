@@ -7,9 +7,8 @@ const MatiereSchema = new Schema({
     enum: ['mathematique', 'physique-chimie', 'SVT', 'français', 'philosophie'],
     required: true
   },
-  chapitres: [{ type: Schema.Types.ObjectId, ref: 'Chapitre' }],
+  chapitres: [{ type: Schema.Types.ObjectId, ref: 'Chapitre' }], // Référence aux chapitres associés
   isDelete: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model('Matiere', MatiereSchema);
-  

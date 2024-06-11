@@ -1,5 +1,5 @@
-const { HttpError } = require('../utils/exceptions');
-const Matiere = require("../models/MatiereModel")
+const { HttpError } = require('../../utils/exceptions');
+const Matiere = require("../../models/MatiereModel")
 
 
 class MatiereService {
@@ -81,6 +81,35 @@ class MatiereService {
       throw new HttpError(error, 500, 'Erreur interne du serveur');
     }
   }
+
+  static async searchMatiereByIntitule(intitule) {
+    try {
+      // Rechercher les matières par intitulé
+      const matieres = await Matiere.find({
+        intitule: { $regex: new RegExp(intitule, 'i') },
+        isDelete: false
+      });
+      return matieres;
+    } catch (error) {
+      console.error(error);
+      throw new HttpError(error, 500, 'Erreur interne du serveur');
+    }
+  }
+
+  /* Nouvelle méthode pour la recherche des matières
+ static async searchMatieres(query) {
+   try {
+     return await Matiere.find({
+       intitule: { $regex: query, $options: 'i' },
+       isDelete: false
+     });
+   } catch (error) {
+     console.error(error);
+     throw new HttpError(error, 500, 'Erreur interne du serveur');
+   }
+ }
+ */
+
 }
 
 module.exports = MatiereService;

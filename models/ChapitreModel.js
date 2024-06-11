@@ -9,7 +9,7 @@ const ChapitreSchema = new Schema({
         required: true,
         enum: ['pdf', 'audio', 'texte']
     },
-    matiere: { type: Schema.Types.ObjectId, ref: 'Matiere', required: true }
+    matiere: { type: Schema.Types.ObjectId, ref: 'Matiere', required: true } // Clé etrangers vers Matiere
 });
 
 ChapitreSchema.path('type').validate(function (value) {
@@ -19,6 +19,6 @@ ChapitreSchema.path('type').validate(function (value) {
         return ['audio', 'texte'].includes(value);
     }
     return true;
-}, 'Type must be pdf or texte for scientific subjects and audio or texte for literary subjects.');
+}, 'Le type doit être pdf ou texte pour les matières scientifiques et audio ou texte pour les matières littéraires.');
 
 module.exports = mongoose.model('Chapitre', ChapitreSchema);
