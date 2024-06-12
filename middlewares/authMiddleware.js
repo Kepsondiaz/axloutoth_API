@@ -1,45 +1,28 @@
 const validator = require("../utils/integrity");
-const AuthService = require('../services/auth/authService');
-const { HttpError } = require("../utils/exceptions");
+const { HttpError } = require('../utils/exceptions');
+
 
 const validateRegister = (req, res, next) => {
-    const { email, phone, password, role } = req.body;
+    const { phone, password, firstname, lastname, address, sexe } = req.body;
 
-    if ((!email && !phone) || !password || !role) {
+    if (!phone || !password || !firstname || !lastname || !address || !sexe) {
         return res.status(400).json({
-            message: "Veuillez fournir l'email, le numéro de téléphone, le rôle et le mot de passe",
+            message: "Veuillez fournir le numéro de téléphone, le mot de passe, le prénom, le nom de famille, l'adresse et le sexe",
             data: null,
         });
     }
 
-    // Vérification et validation de l'intégrité des données
-    let invalid = [];
-    if (email !== undefined && !validator.isEmail(email)) {
-        invalid.push("email invalide");
-    }
-
-    if (role !== undefined && !validator.isRole(role)) {
-        invalid.push("rôle invalide");
-    }
-
-    if (phone && !validator.isPhone(phone)) {
-        invalid.push("numéro de téléphone invalide");
-    }
-
     // Vérification des injections
     if (
+        validator.hasInjection(phone) ||
         validator.hasInjection(password) ||
-        validator.hasInjection(email) ||
-        validator.hasInjection(phone)
+        validator.hasInjection(firstname) ||
+        validator.hasInjection(lastname) ||
+        validator.hasInjection(address)
     ) {
-        invalid.push("caractères invalides");
+        return res.status(400).json({ message: "Caractères invalides détectés" });
     }
 
-    if (invalid.length > 0) {
-        return res
-            .status(400)
-            .json({ message: `erreurs: ${invalid.join(", ")}!`, data: null });
-    }
     next();
 };
 
@@ -60,9 +43,7 @@ const validateLogin = (req, res, next) => {
     }
 
     // Vérifie si le login est un email ou un numéro de téléphone
-    let isPhone = validator.isPhone(phone);
-
-    if (!isPhone) {
+    if (!validator.isPhone(phone)) {
         return res
             .status(400)
             .json({ message: "Le login devrait être un numéro de téléphone ", err: "log-3" });
@@ -70,6 +51,7 @@ const validateLogin = (req, res, next) => {
 
     next();
 };
+
 
 
 const verifyToken = async (req, res, next) => {
@@ -96,6 +78,7 @@ const verifyToken = async (req, res, next) => {
             res.status(500).json({ message: 'Erreur du serveur' });
         }
     }
+
 }
 
 
@@ -103,4 +86,6 @@ module.exports = {
     validateRegister,
     validateLogin,
     verifyToken
+
 };
+

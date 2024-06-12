@@ -5,41 +5,75 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 class AuthService {
-    static async registerUser(Userdata) {
+
+    static async registerInitialUser(Userdata) {
         try {
-            const user = await UserService.createUser(Userdata);
-            if (!user) {
-                throw new HttpError(null, 404, "Utilisateur introuvable.");
-            }
+            const hashedPassword = await bcrypt.hash(Userdata.password, 10);
+            const user = new User({
+                phone: Userdata.phone,
+                password: hashedPassword,
+                firstname: Userdata.firstname,
+                lastname: Userdata.lastname,
+                address: Userdata.address,
+                sexe: Userdata.sexe,
+            });
+
+            await user.save();
 
             const payload = {
                 user: {
                     id: user.id,
                     firstname: user.firstname,
                     lastname: user.lastname,
-                    role: user.role,
                 },
             };
 
-            let token;
-            try {
-                token = jwt.sign(payload, process.env.JWT_SECRET, {
-                    expiresIn: process.env.JWT_EXPIRES_IN,
-                });
-            } catch (error) {
-                throw new HttpError(error, 500, "Échec de la génération du token.");
-            }
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 
             return {
                 token,
                 success: true,
-                message: "Utilisateur enregistré et token généré avec succès.",
+                message: "Utilisateur enregistré avec succès. Complétez l'enregistrement.",
             };
         } catch (err) {
             if (err instanceof HttpError) throw err;
             if (err.name === "ValidationError") {
                 throw new HttpError(err, 400, err.message);
             } else if (err.code === 11000) {
+                throw new HttpError(err, 400, "Le téléphone est déjà utilisé.");
+            } else {
+                throw new HttpError(err, 500, "Erreur interne du serveur.");
+            }
+        }
+    }
+
+    static async completeRegistration(Userdata, userId) {
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                throw new HttpError(null, 404, "Utilisateur introuvable.");
+            }
+
+            // Vérifiez si les champs email et role sont déjà remplis
+            if (user.email && user.role) {
+                return {
+                    success: false,
+                    message: "Vous avez déjà complété votre enregistrement.",
+                };
+            }
+
+            user.email = Userdata.email;
+            user.role = Userdata.role;
+
+            await user.save();
+
+            return {
+                success: true,
+                message: "Enregistrement complété avec succès.",
+            };
+        } catch (err) {
+            if (err instanceof HttpError) throw err;
+            if (err.name === "ValidationError") {
                 throw new HttpError(err, 400, err.message);
             } else {
                 throw new HttpError(err, 500, "Erreur interne du serveur.");
@@ -69,16 +103,12 @@ class AuthService {
                 },
             };
 
-            let token;
-            try {
-                token = jwt.sign(payload, process.env.JWT_SECRET, {
-                    expiresIn: process.env.JWT_EXPIRES_IN,
-                });
-            } catch (error) {
-                throw new HttpError(error, 500, "Échec de la génération du token.");
-            }
+            const token = jwt.sign(payload, process.env.JWT_SECRET, {
+                expiresIn: process.env.JWT_EXPIRES_IN,
+            });
 
             return {
+                userId: user.id,
                 token,
                 success: true,
                 message: "Authentifié",
@@ -89,14 +119,12 @@ class AuthService {
         }
     }
 
-    // Fonction qui permet de connaitre l'utilisateur actuellement connecté
-
 
     static async getCurrentUser(token) {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const user = await User.findById(decoded.user.id);
-            
+
             if (!user) {
                 throw new HttpError(null, 404, "Utilisateur introuvable.");
             }
@@ -109,6 +137,7 @@ class AuthService {
             throw new HttpError(error, 500, "Erreur du serveur");
         }
     }
+
 }
 
 module.exports = AuthService;

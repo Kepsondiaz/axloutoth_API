@@ -2,15 +2,20 @@ const AuthService = require("../../services/auth/authService.js");
 const { HttpError } = require("../../utils/exceptions.js");
 
 /**
- * Enregistre un nouvel utilisateur
+ * Enregistre un nouvel utilisateur (Étape 1)
  * @param {import('express').Request} req - Requête Express
  * @param {import('express').Response} res - Réponse Express
  * @returns {Promise<void>} - Promesse indiquant la fin du traitement
  */
-
 const authRegisterUser = async (req, res) => {
     try {
-        const registerUser = await AuthService.registerUser(req.body);
+        const { phone, password, firstname, lastname, address, sexe } = req.body;
+
+        if (!phone || !password || !firstname || !lastname || !address || !sexe) {
+            return res.status(400).json({ message: "Veuillez fournir tous les champs requis." });
+        }
+
+        const registerUser = await AuthService.registerInitialUser({ phone, password, firstname, lastname, address, sexe });
 
         return res.status(201).json(registerUser);
     } catch (error) {
@@ -18,7 +23,35 @@ const authRegisterUser = async (req, res) => {
         if (error instanceof HttpError) {
             res.status(error.statusCode).json({ message: error.message });
         } else {
-            res.status(500).json({ message: "Internal Server Error" });
+            res.status(500).json({ message: "Erreur interne du serveur" });
+        }
+    }
+};
+
+/**
+ * Complète l'enregistrement de l'utilisateur (Étape 2)
+ * @param {import('express').Request} req - Requête Express
+ * @param {import('express').Response} res - Réponse Express
+ * @returns {Promise<void>} - Promesse indiquant la fin du traitement
+ */
+const completeRegistration = async (req, res) => {
+    try {
+        const { email, role } = req.body;
+        const { userId } = req.params;
+
+        if (!email || !role || !userId) {
+            return res.status(400).json({ message: "Veuillez fournir tous les champs requis." });
+        }
+
+        const result = await AuthService.completeRegistration({ email, role }, userId);
+
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        if (error instanceof HttpError) {
+            res.status(error.statusCode).json({ message: error.message });
+        } else {
+            res.status(500).json({ message: "Erreur interne du serveur" });
         }
     }
 };
@@ -45,5 +78,6 @@ const authLoginUser = async (req, res) => {
 
 module.exports = {
     authRegisterUser,
+    completeRegistration,
     authLoginUser,
 };

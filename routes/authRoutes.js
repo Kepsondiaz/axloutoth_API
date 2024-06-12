@@ -14,6 +14,11 @@ router.get("/", (req, res) => {
  */
 router.post("/register", middleware.validateRegister, auth.authRegisterUser);
 
+// Completer la creation de compte  
+router.post("/complete-registration/:userId", auth.completeRegistration);
+
+
+
 /**
  * @desc Route to log a user
  * @route POST api/users

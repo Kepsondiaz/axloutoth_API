@@ -12,6 +12,7 @@ const Sexes = Object.freeze({
 });
 
 const UserSchema = new mongoose.Schema({
+
     firstname: {
         type: String,
         required: [true, "Please give the firstname"],
@@ -31,7 +32,6 @@ const UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: [true, "Please give the email"],
         trim: true,
     },
     role: {

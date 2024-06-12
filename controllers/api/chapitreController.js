@@ -1,15 +1,16 @@
 const ChapitreService = require("../../services/api/chapitreService.js");
-const { HttpError } = require("../../utils/exceptions.js");
 
 
 class ChapitreController {
 
     static async createChapitre(req, res) {
         try {
-            const { matiereId, chapitreId, fileData, intitule } = req.body; // Obtenez les données de la demande
+            const { intitule } = req.body; // Récupérer l'intitulé à partir du corps de la demande
+            const { matiereId } = req.params; // Récupérer matiereId à partir des paramètres de requête
+            const file = req.file; // Récupérer le fichier téléchargé depuis la requête
 
             // Appelez la méthode createChapitre de ChapitreService pour créer un nouveau chapitre
-            const chapitre = await ChapitreService.createChapitre(matiereId, chapitreId, fileData, intitule);
+            const chapitre = await ChapitreService.createChapitre(matiereId, intitule, file);
 
             // Réponse avec le chapitre créé
             res.status(201).json({ success: true, data: chapitre });
@@ -19,6 +20,7 @@ class ChapitreController {
             res.status(500).json({ success: false, error: 'Erreur interne du serveur' });
         }
     }
+
 
     static async getAllChapitres(req, res) {
         try {

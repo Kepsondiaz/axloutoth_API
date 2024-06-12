@@ -4,7 +4,10 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const cors = require("cors");
 const routes = require("./routes/indexRoutes");
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger/swagger_output.json');
 require('dotenv').config();
+
 
 
 const PORT_DEFAULT = 8000;
@@ -21,6 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
 app.use(helmet());
+
+// Serve Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Prefix all API routes with /api/v1
 app.use("/api/v1", routes);

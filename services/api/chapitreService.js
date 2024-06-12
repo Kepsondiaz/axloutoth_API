@@ -1,66 +1,32 @@
 const Chapitre = require("../../models/ChapitreModel");
 const { HttpError } = require('../../utils/exceptions');
 const Matiere = require("../../models/MatiereModel");
-const { getCurrentUser } = require('../auth/authService');
 
 class ChapitreService {
 
-    static async createChapitre(matiereId, chapitreId, fileData, intitule) {
+    static async createChapitre(matiereId, intitule, file) {
         try {
-            // Vérifiez d'abord si le fichier a été téléchargé avec succès
-            if (!fileData || !fileData.filename || !fileData.path) {
-                throw new Error('Aucun fichier téléchargé ou données de fichier manquantes');
-            }
-
-            // Obtenez l'utilisateur actuel à l'aide de la fonction getCurrentUser
-            const currentUser = await getCurrentUser(); // Cette fonction doit retourner l'utilisateur actuellement connecté
-
-            // Obtenez le chapitre associé à l'ID du chapitre
-            const chapitre = await Chapitre.findById(chapitreId);
-            if (!chapitre) {
-                throw new Error('Chapitre non trouvé');
-            }
-
-            // Obtenez la matière associée à l'ID de la matière
+            // Vérifier si la matière existe
             const matiere = await Matiere.findById(matiereId);
             if (!matiere) {
                 throw new Error('Matière non trouvée');
             }
 
-            // Vérifiez le type de matière pour déterminer les extensions de fichier autorisées
-            let allowedExtensions = [];
-            if (['mathematique', 'physique', 'chimie', 'SVT'].includes(matiere.intitule)) {
-                allowedExtensions = ['pdf', 'text'];
-            } else if (['français', 'philosophie'].includes(matiere.intitule)) {
-                allowedExtensions = ['pdf', 'audio'];
-            } else {
-                throw new Error('Type de matière non reconnu');
-            }
+            // Traiter le téléchargement de fichier avec Multer
+            const fileName = file.filename;
+            const filePath = file.path;
 
-            // Vérifiez si l'extension du fichier téléchargé est autorisée
-            const fileExtension = fileData.filename.split('.').pop();
-            if (!allowedExtensions.includes(fileExtension.toLowerCase())) {
-                throw new Error(`L'extension de fichier ${fileExtension} n'est pas autorisée pour cette matière`);
-            }
+            // Créer un nouveau chapitre avec les informations de fichier et de matière
+            const chapitre = await Chapitre.create({
+                intitule: intitule,
+                fileName: fileName,
+                filePath: filePath,
+                matiere: matiereId
+            });
 
-            // Vous pouvez maintenant utiliser les données de fileData pour enregistrer le fichier où vous le souhaitez
-            // Par exemple, vous pouvez enregistrer le nom de fichier et son chemin dans la base de données
-            const fileName = intitule ? intitule + '.' + fileExtension : fileData.filename; // Vérifiez si un nouveau nom de fichier a été spécifié
-            const filePath = fileData.path;
-
-            // Mettez à jour le chapitre avec les informations sur le fichier téléchargé
-            chapitre.fileName = fileName;
-            chapitre.filePath = filePath;
-            chapitre.user_id = currentUser._id; // Assurez-vous de mettre à jour l'ID de l'utilisateur pour le chapitre
-
-            // Enregistrez les modifications apportées au chapitre dans la base de données
-            await chapitre.save();
-
-            // Retournez le chapitre mis à jour avec les informations sur le fichier téléchargé
             return chapitre;
         } catch (error) {
-            console.error(error);
-            throw new HttpError(error, 500, 'Erreur interne du serveur');
+            throw new Error(error.message);
         }
     }
 
@@ -73,7 +39,7 @@ class ChapitreService {
         }
     }
 
-    
+
 
 
     /*

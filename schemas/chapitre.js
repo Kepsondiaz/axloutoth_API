@@ -3,12 +3,9 @@ const Schema = mongoose.Schema;
 
 const ChapitreSchema = new Schema({
     intitule: { type: String, required: true },
-    content_type: { type: String, required: true },
-    created_at: { type: Date, default: Date.now },
-    fileName: { type: String, required: true }, 
-    filePath: { type: String, required: true } ,
-    user_id: { type: Schema.Types.ObjectId, ref: 'user', required: true }, // Référence à l'utilisateur
-    matiere: { type: Schema.Types.ObjectId, ref: 'matiere', required: true }, // Clé etrangers vers Matiere
+    fileName: { type: String, required: true },
+    filePath: { type: String, required: true },
+    matiere: { type: mongoose.Schema.Types.ObjectId, ref: 'Matiere', required: true },
     isDelete: { type: Boolean, default: false }
 });
 const skipDeleted = function () {

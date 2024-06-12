@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "node swagger/swagger.js"
   },
   "keywords": [],
   "author": "Moussa Diallo",
@@ -25,7 +25,9 @@
     "http-errors": "^2.0.0",
     "mongoose": "^8.4.1",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.2"
