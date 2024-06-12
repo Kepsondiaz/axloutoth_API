@@ -88,6 +88,27 @@ class AuthService {
             throw new HttpError(error, 500, "Erreur du serveur");
         }
     }
+
+    // Fonction qui permet de connaitre l'utilisateur actuellement connecté
+
+
+    static async getCurrentUser(token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const user = await User.findById(decoded.user.id);
+            
+            if (!user) {
+                throw new HttpError(null, 404, "Utilisateur introuvable.");
+            }
+
+            return user;
+        } catch (error) {
+            if (error instanceof jwt.JsonWebTokenError) {
+                throw new HttpError(error, 401, "Token invalide");
+            }
+            throw new HttpError(error, 500, "Erreur du serveur");
+        }
+    }
 }
 
 module.exports = AuthService;

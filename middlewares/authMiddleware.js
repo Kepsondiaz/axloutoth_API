@@ -1,4 +1,6 @@
 const validator = require("../utils/integrity");
+const AuthService = require('../services/auth/authService');
+const { HttpError } = require("../utils/exceptions");
 
 const validateRegister = (req, res, next) => {
     const { email, phone, password, role } = req.body;
@@ -69,7 +71,36 @@ const validateLogin = (req, res, next) => {
     next();
 };
 
+
+const verifyToken = async (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token non fourni' });
+    }
+
+    try {
+        const user = await AuthService.getCurrentUser(token);
+
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        if (error instanceof HttpError) {
+            res.status(error.statusCode).json({ message: error.message });
+        } else {
+            res.status(500).json({ message: 'Erreur du serveur' });
+        }
+    }
+}
+
+
 module.exports = {
     validateRegister,
     validateLogin,
+    verifyToken
 };

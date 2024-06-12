@@ -3,6 +3,7 @@ const Matiere = require("../../models/MatiereModel")
 
 
 class MatiereService {
+  
   static async createMatiere(matiereData) {
     try {
       // Vérifier si une matière avec le même intitulé existe déjà

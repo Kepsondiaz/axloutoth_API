@@ -5,33 +5,37 @@ const { HttpError } = require("../../utils/exceptions.js");
 class ChapitreController {
 
     static async createChapitre(req, res) {
-        const { matiereId } = req.params; // Extraire l'ID de la matière de l'URL
-        const chapitreData = req.body; // Les données du chapitre provenant du corps de la requête
-
         try {
-            const chapitre = await ChapitreService.createChapitre(matiereId, chapitreData);
-            res.status(201).json(chapitre);
+            const { matiereId, chapitreId, fileData, intitule } = req.body; // Obtenez les données de la demande
+
+            // Appelez la méthode createChapitre de ChapitreService pour créer un nouveau chapitre
+            const chapitre = await ChapitreService.createChapitre(matiereId, chapitreId, fileData, intitule);
+
+            // Réponse avec le chapitre créé
+            res.status(201).json({ success: true, data: chapitre });
         } catch (error) {
-            if (error instanceof HttpError) {
-                res.status(error.statusCode).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: error.message });
-            }
+            // Gestion des erreurs
+            console.error(error);
+            res.status(500).json({ success: false, error: 'Erreur interne du serveur' });
         }
     }
+
     static async getAllChapitres(req, res) {
         try {
+            // Appelez la méthode getAllChapitres de ChapitreService pour récupérer tous les chapitres
             const chapitres = await ChapitreService.getAllChapitres();
-            res.json(chapitres);
+
+            // Réponse avec la liste des chapitres
+            res.status(200).json({ success: true, data: chapitres });
         } catch (error) {
-            if (error instanceof HttpError) {
-                res.status(error.statusCode).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: error.message });
-            }
+            // Gestion des erreurs
+            console.error(error);
+            res.status(500).json({ success: false, error: 'Erreur interne du serveur' });
         }
     }
 
+
+    /*
     static async getChapitreById(req, res) {
         const { id } = req.params;
         try {
@@ -88,6 +92,7 @@ class ChapitreController {
             }
         }
     }
+    */
 
 }
 

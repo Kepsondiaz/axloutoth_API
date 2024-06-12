@@ -3,6 +3,7 @@ const router = express.Router();
 const MatiereController = require('../controllers/api/MatiereController');
 const ChapitreController = require("../controllers/api/chapitreController")
 
+
 router.get('/', MatiereController.getAllMatieres);
 router.get('/:id', MatiereController.getMatiereById);
 router.post('/', MatiereController.createMatiere);
