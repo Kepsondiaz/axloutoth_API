@@ -1,18 +1,41 @@
-const multer = require('multer');
+const multer = require("multer");
 
-// Définir le stockage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Spécifiez le dossier de destination où les fichiers seront enregistrés
-    cb(null, 'uploads/');
+const MIME_TYPE_FILE = {
+  "application/pdf": "pdf",
+  "application/msword": "doc",
+};
+
+const MIME_TYPE_PICTURE = {
+  "image/jpg": "jpg",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+};
+
+const storageFile = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "public/documents");
   },
-  filename: function (req, file, cb) {
-    // Spécifiez le nom du fichier
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+  filename: (req, file, callback) => {
+    console.log(file, "ok");
+    const extension = MIME_TYPE_FILE[file.mimetype];
+    callback(null, Date.now() + "-" + req.params.id_matiere + "." + extension);
+  },
 });
 
-// Configurer le middleware multer
-const upload = multer({ storage: storage });
+module.exports.fileUpload = multer({ storage: storageFile }).single("file");
 
-module.exports = upload;
+const storagePicture = multer.diskStorage({
+  destination: (req, file, callback) => {
+    console.log("Destination Middleware Log:", file);
+    callback(null, "public/pictures");
+  },
+  filename: (req, file, callback) => {
+    console.log(file);
+    const extension = MIME_TYPE_PICTURE[file.mimetype];
+    callback(null, req.params.id + "." + extension);
+  },
+});
+
+module.exports.pictureUpload = multer({ storage: storagePicture }).single(
+  "picture"
+);

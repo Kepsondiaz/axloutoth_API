@@ -1,10 +1,10 @@
-const express = require('express');
-const ChapitreController = require('../controllers/api/chapitreController');
-const upload = require('../config/multerConfig');
+const express = require("express");
+const ChapitreController = require("../controllers/api/chapitreController");
+const upload = require("../config/multerConfig");
 
 const router = express.Router();
 
-router.post('/:matiereId/chapitres', upload.single('file'), ChapitreController.createChapitre);
+// router.post('/:matiereId/chapitres', upload.single('file'), ChapitreController.createChapitre);
 
 /*
 router.get('/', ChapitreController.getAllChapitres);
