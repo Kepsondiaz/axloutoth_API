@@ -23,24 +23,24 @@ module.exports.getOneFile = async (req, res) => {
 };
 
 module.exports.addOneFile = async (req, res) => {
-  if (
-    !ObjectId.isValid(req.params.id_matiere) &&
-    !(await Matiere.exists({ _id: req.params.id_matiere }))
-  )
-    return res.status(400).send("ID unknown");
+  // if (
+  //   !ObjectId.isValid(req.params.id_matiere) &&
+  //   !(await Matiere.exists({ _id: req.params.id_matiere }))
+  // )
+  //   return res.status(400).send("ID unknown");
   const { date, file } = req.body;
   console.log(date, file);
   try {
     console.log(req.file); // Ajoutez ce log pour vérifier que req.file est défini
 
-    if (!req.files) {
+    if (!req.file) {
       return res.status(400).send("No file uploaded");
     }
 
     const file = await FileModel.create({
       date,
       size: req.file.size,
-      filepath: `${req.protocol}://${process.env.HOST}:${process.env.PORT}/api/v1/file/${req.file.filename}`,
+      filepath: `${req.protocol}://${process.env.HOST}:${process.env.PORT}/api/v1/file/${req.file.originalname}`,
     });
 
     const matiere = await Matiere.findOneAndUpdate(

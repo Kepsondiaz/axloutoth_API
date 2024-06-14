@@ -5,7 +5,7 @@ const FileSchema = new mongoose.Schema({
     type: String,
     required: true,
     maxlength: 50,
-    unique: true,
+    unique: false,
   },
   size: {
     type: String,
@@ -13,7 +13,7 @@ const FileSchema = new mongoose.Schema({
   filepath: {
     type: String,
     required: true,
-    unique: true,
+    unique: false,
   },
 });
 

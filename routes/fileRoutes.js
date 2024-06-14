@@ -18,7 +18,7 @@ router.get("/get/all", getAllFiles);
 router.get("/get/:id", getOneFile);
 
 router.post(
-  "/add/:id_matiere",
+  "/add/",
   fileUpload,
   express.static(path.join(__dirname, "public/documents")),
   addOneFile

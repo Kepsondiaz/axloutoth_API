@@ -13,12 +13,12 @@ const MIME_TYPE_PICTURE = {
 
 const storageFile = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, "public/documents");
+    callback(null, "./public/documents");
   },
   filename: (req, file, callback) => {
     console.log(file, "ok");
     const extension = MIME_TYPE_FILE[file.mimetype];
-    callback(null, Date.now() + "-" + req.params.id_matiere + "." + extension);
+    callback(null, Date.now() + "-" + file.originalname + "." + extension);
   },
 });
 
@@ -26,8 +26,8 @@ module.exports.fileUpload = multer({ storage: storageFile }).single("file");
 
 const storagePicture = multer.diskStorage({
   destination: (req, file, callback) => {
-    console.log("Destination Middleware Log:", file);
-    callback(null, "public/pictures");
+    // console.log("Destination Middleware Log:", file);
+    callback(null, "./public/pictures");
   },
   filename: (req, file, callback) => {
     console.log(file);
