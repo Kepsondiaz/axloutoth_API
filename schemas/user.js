@@ -11,51 +11,87 @@ const Sexes = Object.freeze({
     FEMALE: "F",
 });
 
+const Niveaux = Object.freeze({
+    SECOND: "Second",
+    PREMIERE: "Premiere",
+    TERMINAL: "Terminal",
+});
+
+const Series = Object.freeze({
+    SCIENTIFIQUE: ["S1", "S1A","S2A", "S2", "S3"],
+    LITTERAIRE: ["L1", "L2", "L1'"],
+});
+
 const UserSchema = new mongoose.Schema({
 
     firstname: {
         type: String,
-        required: [true, "Please give the firstname"],
+        required: [true, "Please provide the firstname"],
     },
+
     lastname: {
         type: String,
-        required: [true, "Please give the lastname"],
+        required: [true, "Please provide the lastname"],
     },
+
     address: {
         type: String,
-        required: [true, "Please give the address"],
+        required: [true, "Please provide the address"],
     },
+
     sexe: {
         type: String,
-        required: [true, "Please give the sexe"],
+        required: [true, "Please provide the sexe"],
         enum: Object.values(Sexes),
     },
+
+    /*
     email: {
         type: String,
         trim: true,
     },
+    */
+
     role: {
         type: String,
         enum: Object.values(Roles),
         default: Roles.STUDENT,
     },
+
     phone: {
         type: String,
         unique: true,
         required: true,
     },
+
     password: {
         type: String,
         required: true,
     },
+
+    niveau: {
+        type: String,
+        enum: Object.values(Niveaux),
+    },
+
+    serie: {
+        type: String,
+    },
+
+    etablissement: {
+        type: String,
+    },
+
     isDeleted: {
         type: Boolean,
         default: false,
     },
+
     date: {
         type: Date,
         default: Date.now(),
     },
+    
 });
 
 const skipDeleted = function () {
@@ -75,4 +111,6 @@ module.exports = {
     UserSchema,
     Roles,
     Sexes,
+    Niveaux,
+    Series,
 };

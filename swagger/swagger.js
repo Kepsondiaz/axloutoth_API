@@ -2,7 +2,7 @@ const swaggerAutogen = require('swagger-autogen')();
 
 const doc = {
     info: {
-        title: 'AxlouToth API',
+        title: 'AxlouToth-API',
         description: 'AxlouToth API Documentation',
     },
     host: 'localhost:3000',
