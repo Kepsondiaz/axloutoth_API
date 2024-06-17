@@ -5,16 +5,16 @@ const { Niveaux, Series } = require('../../schemas/user.js');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+
+
 class AuthService {
 
+    static registrationToken = null;
+    static loginToken = null;
+
     static async registerInitialUser(Userdata) {
-
-        
         try {
-
-            // Vérification si le numéro de téléphone existe déjà
             const existingUser = await User.findOne({ phone: Userdata.phone });
-            
             if (existingUser) {
                 throw new HttpError(null, 400, "Le numéro de téléphone est déjà utilisé.");
             }
@@ -36,15 +36,21 @@ class AuthService {
                     id: user.id,
                     firstname: user.firstname,
                     lastname: user.lastname,
+                   
                 },
+
+                registrationToken: true
             };
 
             const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-
+            AuthService.registrationToken = token;
+            
             return {
-                token,
+               
                 success: true,
-                message: "Utilisateur enregistré avec succès. Complétez l'enregistrement.",
+                message: "Utilisateur enregistré avec succès. Complétez l'enregistrement",
+                token: AuthService.registrationToken,
+
             };
         } catch (err) {
             if (err instanceof HttpError) throw err;
@@ -56,65 +62,76 @@ class AuthService {
         }
     }
 
-    static async completeRegistration(userId, userData) {
-
+    static async completeRegistration(token, userData) {
         try {
 
-            const user = await User.findById(userId);
-
-            if (!user) {
-                throw new HttpError(null, 404, "Utilisateur introuvable.");
+    
+            if (token !== AuthService.registrationToken) {
+               throw new HttpError(null, 400, "Token invalide.");
             }
 
-            if (user.niveau && user.serie && user.etablissement) {
-
-                return {
-                    success: false,
-                    message: "Vous avez déjà complété votre enregistrement.",
-                };
-            }
-
-            if (userData.niveau && !Object.values(Niveaux).includes(userData.niveau)) {
-                throw new HttpError(null, 400, "Niveau invalide.");
-            }
-
-            if (userData.niveau === Niveaux.SECOND) {
-                if (!userData.serie || !(Series.SCIENTIFIQUE.includes(userData.serie) || Series.LITTERAIRE.includes(userData.serie))) {
-                    throw new HttpError(null, 400, "Série invalide pour le niveau secondaire.");
-                }
-            } else if (userData.niveau === Niveaux.PREMIERE || userData.niveau === Niveaux.TERMINAL) {
-                if (!userData.serie || !Series.SCIENTIFIQUE.includes(userData.serie)) {
-                    throw new HttpError(null, 400, "Série invalide pour le niveau première ou terminal.");
-                }
-            }
-
-            user.niveau = userData.niveau;
-            user.serie = userData.serie;
-            user.etablissement = userData.etablissement;
-
-            await user.save();
-
+           // Vérifier si le token est valide
+          const payload = jwt.verify(token, process.env.JWT_SECRET);
+          const userId = payload.user.id;
+      
+          const user = await User.findById(userId);
+      
+          if (!user) {
+            throw new HttpError(null, 404, "Utilisateur introuvable.");
+          }
+      
+          if (user.niveau && user.serie && user.etablissement) {
             return {
-                success: true,
-                message: "Enregistrement complété avec succès.",
+              success: false,
+              message: "Vous avez déjà complété votre enregistrement.",
             };
-
-        } catch (err) {
-            if (err instanceof HttpError) throw err;
-            if (err.name === "ValidationError") {
-                throw new HttpError(err, 400, err.message);
-            } else {
-                throw new HttpError(err, 500, "Erreur interne du serveur.");
+          }
+      
+          // Vérifier la validité des données utilisateur
+          if (userData.niveau && !Object.values(Niveaux).includes(userData.niveau)) {
+            throw new HttpError(null, 400, "Niveau invalide.");
+          }
+      
+          if (userData.niveau === Niveaux.SECOND) {
+            if (!userData.serie || !(Series.SCIENTIFIQUE.includes(userData.serie) || Series.LITTERAIRE.includes(userData.serie))) {
+              throw new HttpError(null, 400, "Série invalide pour le niveau secondaire.");
             }
+          } else if (userData.niveau === Niveaux.PREMIERE || userData.niveau === Niveaux.TERMINAL) {
+            if (!userData.serie || !Series.SCIENTIFIQUE.includes(userData.serie)) {
+              throw new HttpError(null, 400, "Série invalide pour le niveau première ou terminal.");
+            }
+          }
+      
+          // Mettre à jour les informations utilisateur
+          user.niveau = userData.niveau;
+          user.serie = userData.serie;
+          user.etablissement = userData.etablissement;
+      
+          await user.save();
+      
+          return {
+            success: true,
+            message: "Enregistrement complété avec succès.",
+          };
+        } catch (err) {
+          if (err instanceof HttpError) {
+            throw err;
+          } else if (err.name === "ValidationError") {
+            throw new HttpError(err, 400, err.message);
+          } else {
+            throw new HttpError(err, 500, "Erreur interne du serveur.");
+          }
         }
-    }
+      }
+      
 
+      static async loginUser(Userdata) {
 
-    static async loginUser(Userdata) {
         try {
             const { phone, password } = Userdata;
 
             let user = await User.findOne({ phone });
+
             if (!user) {
                 throw new HttpError(null, 400, "Téléphone ou mot de passe invalides");
             }
@@ -130,20 +147,22 @@ class AuthService {
                     username: user.username,
                     role: user.role,
                 },
+                loginToken: true
             };
 
             const token = jwt.sign(payload, process.env.JWT_SECRET, {
                 expiresIn: process.env.JWT_EXPIRES_IN,
             });
 
+            AuthService.loginToken = token; // Stocker le token dans la classe
+
             const isComplete = Boolean(user.niveau && user.serie && user.etablissement);
 
             return {
-                userId: user.id,
-                token,
                 success: true,
-                message: "Authentifié",
-                isComplete
+                message: "Utilisateur authentifié avec succès",
+                isComplete,
+                token: AuthService.loginToken, // Inclure le token dans la réponse
             };
         } catch (error) {
             if (error instanceof HttpError) throw error;
@@ -151,23 +170,28 @@ class AuthService {
         }
     }
 
-
-    static async changePassword(userId, newPassword) {
+    static async changePassword(token, newPassword) {
         try {
-            // Hash du nouveau mot de passe
+            if (token !== AuthService.loginToken) {
+                
+                throw new HttpError(null, 400, "Token invalide.");
+            }
+
+            const payload = jwt.verify(token, process.env.JWT_SECRET);
+            const userId = payload.user.id;
+
             const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-            // Mise à jour du mot de passe dans la base de données
             const user = await User.findByIdAndUpdate(userId, { password: hashedPassword }, { new: true });
 
             if (!user) {
                 throw new HttpError(null, 404, "Utilisateur non trouvé.");
             }
 
-            return { 
+            return {
                 success: true,
-                message: "Mot de passe modifié avec succès." };
-
+                message: "Mot de passe modifié avec succès."
+            };
         } catch (error) {
             console.error(error);
             if (error instanceof HttpError) {
@@ -178,26 +202,27 @@ class AuthService {
         }
     }
 
-    static async resetPassword(userId, newPassword) {
+
+    static async resetPassword(phone, newPassword) {
         try {
             // Hash du nouveau mot de passe
             const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-            
-            const user = await User.findById(userId);
+            // Trouver l'utilisateur par téléphone
+            const user = await User.findOne({ phone });
             if (!user) {
                 throw new HttpError(null, 404, "Utilisateur non trouvé.");
             }
 
             user.password = hashedPassword;
-
             await user.save();
 
             return { 
-                success: true,
-                message: "Mot de passe réinitialisé avec succès." 
-            };
 
+                success: true,
+                message: "Mot de passe réinitialisé avec succès"
+
+            };
         } catch (error) {
             console.error(error);
             if (error instanceof HttpError) {
@@ -209,33 +234,34 @@ class AuthService {
     }
 
 
-    static async updateUserInformation (userId, phone, updates) {
+    static async updateUserInformation(token, phone, updates) {
+        
+        if (token !== AuthService.loginToken) {
+            throw new HttpError(null, 400, "Token invalide.");
+        }
 
-        // Vérifier si le téléphone existe
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = payload.user.id;
+
         const existingUser = await User.findOne({ phone });
-
         if (!existingUser) {
             throw new Error('Numéro de téléphone invalide.');
         }
-    
-        // Trouver l'utilisateur par ID
+
         const user = await User.findById(userId);
         if (!user) {
             throw new Error('Utilisateur non trouvé.');
         }
-    
-        // Mise à jour des informations utilisateur
-        Object.keys(updates).forEach(key => {
 
+        Object.keys(updates).forEach(key => {
             if (updates[key] !== undefined) {
                 user[key] = updates[key];
             }
         });
-    
+
         await user.save();
         return user;
-    };
-    
+    }
 
 
     /*

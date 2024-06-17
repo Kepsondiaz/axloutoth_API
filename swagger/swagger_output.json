@@ -99,12 +99,12 @@
         }
       }
     },
-    "/api/v1/auth/complete-registration/{userId}": {
+    "/api/v1/auth/complete-registration/{token}": {
       "post": {
         "description": "",
         "parameters": [
           {
-            "name": "userId",
+            "name": "token",
             "in": "path",
             "required": true,
             "type": "string"
@@ -141,12 +141,12 @@
         }
       }
     },
-    "/api/v1/auth/change-password/{userId}": {
+    "/api/v1/auth/change-password/{token}": {
       "post": {
         "description": "",
         "parameters": [
           {
-            "name": "userId",
+            "name": "token",
             "in": "path",
             "required": true,
             "type": "string"
@@ -189,16 +189,10 @@
         }
       }
     },
-    "/api/v1/auth/reset-password/{userId}": {
+    "/api/v1/auth/reset-password/": {
       "post": {
         "description": "",
         "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
           {
             "name": "body",
             "in": "body",
@@ -231,12 +225,12 @@
         }
       }
     },
-    "/api/v1/auth/update-info-user/{userId}": {
+    "/api/v1/auth/update-info-user/{token}": {
       "put": {
         "description": "",
         "parameters": [
           {
-            "name": "userId",
+            "name": "token",
             "in": "path",
             "required": true,
             "type": "string"

@@ -3,6 +3,7 @@
     const mongoose = require("mongoose");
     const User = require("../models/User")
     const {Niveaux,Series} = require("../schemas/user")
+    const jwt = require("jsonwebtoken");
 
 
     const validateRegister = (req, res, next) => {
@@ -94,35 +95,34 @@
     };
 
 
-
     const validateChangePassword = async (req, res, next) => {
 
         const { phone, oldPassword, newPassword } = req.body;
-        const userId = req.params.userId;
+        const token = req.params.token;
     
-        // Vérification des champs requis
         if (!phone || !oldPassword || !newPassword) {
             return res.status(400).json({ message: "Veuillez fournir le numéro de téléphone, l'ancien mot de passe et le nouveau mot de passe." });
         }
-
-          // Vérification si l'userId est un ObjectId valide
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ message: "Utilisateur invalide." });
-        }
-
     
         try {
 
+            const payload = jwt.verify(token, process.env.JWT_SECRET);
+            const userId = payload.user.id;
+    
+            // Vérification si l'userId est un ObjectId valide
+            if (!mongoose.Types.ObjectId.isValid(userId)) {
+                return res.status(400).json({ message: "Utilisateur invalide." });
+            }
+    
             const user = await User.findById(userId);
-
+    
             if (!user) {
-                return res.status(404).json({ message: "Utilisateur non trouvé" });
-             }
-
-        // Vérification si le numéro de téléphone correspond à celui de l'utilisateur trouvé
-
+                return res.status(404).json({ message: "Utilisateur non trouvé." });
+            }
+    
+            // Vérification si le numéro de téléphone correspond à celui de l'utilisateur trouvé
             if (user.phone !== phone) {
-            return res.status(400).json({ message: "Numéro de téléphone incorrect" });
+                return res.status(400).json({ message: "Numéro de téléphone incorrect." });
             }
     
             // Vérification de l'ancien mot de passe
@@ -134,13 +134,11 @@
             // Ajout de l'utilisateur à la requête pour le contrôleur
             req.user = user;
             next();
-
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: "Erreur interne du serveur." });
         }
     };
-
 
 
 

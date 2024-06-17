@@ -23,20 +23,20 @@ router.post("/login", middleware.validateLogin, auth.authLoginUser)
 
 
 // Completer la creation de compte  
-router.post("/complete-registration/:userId", middleware.validateCompleteRegistration, auth.completeRegistration)
+router.post("/complete-registration/:token", middleware.validateCompleteRegistration, auth.completeRegistration)
 
 
 
 // Changer le mot de passe 
-router.post("/change-password/:userId", middleware.validateChangePassword, auth.changePassword)
+router.post("/change-password/:token", middleware.validateChangePassword, auth.changePassword)
 
 
 // Réinitialiser le mot de passe 
-router.post("/reset-password/:userId", middleware.validateResetPassword, auth.resetPassword)
+router.post("/reset-password/", middleware.validateResetPassword, auth.resetPassword)
 
 
 // Mettre a jour ces informations 
-router.put("/update-info-user/:userId", middleware.validateUpdateUserInfo, auth.updateUserInfo)
+router.put("/update-info-user/:token", middleware.validateUpdateUserInfo, auth.updateUserInfo)
 
 
 module.exports = router;

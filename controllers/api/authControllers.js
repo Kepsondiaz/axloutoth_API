@@ -8,7 +8,9 @@ const { HttpError } = require("../../utils/exceptions.js");
  * @returns {Promise<void>} - Promesse indiquant la fin du traitement
  */
 const authRegisterUser = async (req, res) => {
+
   try {
+
     const { phone, password, firstname, lastname, address, sexe } = req.body;
 
     if (!phone || !password || !firstname || !lastname || !address || !sexe) {
@@ -39,23 +41,30 @@ const authRegisterUser = async (req, res) => {
   }
 };
 
+
 const completeRegistration = async (req, res) => {
-
   try {
-      const userId = req.params.userId;
-      const result = await AuthService.completeRegistration(userId, req.body);
+    const token = req.params.token;
 
-      return res.status(200).json(result);
+    // Vérifier si le token est présent
+    if (!token) {
+      return res.status(400).json({ message: "Le token est requis" });
+    }
 
+    const result = await AuthService.completeRegistration(token, req.body);
+
+    return res.status(200).json(result);
   } catch (error) {
-      console.error(error);
-      if (error instanceof HttpError) {
-          res.status(error.statusCode).json({ message: error.message });
-      } else {
-          res.status(500).json({ message: "Erreur interne du serveur." });
-      }
+    console.error(error);
+    if (error instanceof HttpError) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Erreur interne du serveur." });
+    }
   }
 };
+
+
 
 
 /**
@@ -79,12 +88,18 @@ const authLoginUser = async (req, res) => {
 };
 
 
-const changePassword = async (req, res) => {
-  try {
-      const { newPassword } = req.body;
-      const userId = req.params.userId; 
 
-      const result = await AuthService.changePassword(userId, newPassword);
+const changePassword = async (req, res) => {
+  
+  try {
+      const token = req.params.token;
+
+      if (!token) {
+          return res.status(400).json({ message: "Le token est requis." });
+      }
+
+      // Utiliser le token pour vérifier l'utilisateur et changer le mot de passe
+      const result = await AuthService.changePassword(token, req.body.newPassword);
 
       return res.status(200).json(result);
   } catch (error) {
@@ -106,15 +121,14 @@ const changePassword = async (req, res) => {
  */
 const resetPassword = async (req, res) => {
   try {
-      const { newPassword } = req.body;
-      const { userId } = req.params;
+      const { phone, newPassword } = req.body;
 
-      if (!newPassword || !userId) {
-
-          return res.status(400).json({ message: "Veuillez fournir un nouveau mot de passe et un ID d'utilisateur valide." });
+      // Vérifier si le numéro de téléphone et le nouveau mot de passe sont présents
+      if (!phone || !newPassword) {
+          return res.status(400).json({ message: "Veuillez fournir le numéro de téléphone et le nouveau mot de passe." });
       }
 
-      const result = await AuthService.resetPassword(userId, newPassword);
+      const result = await AuthService.resetPassword(phone, newPassword);
 
       return res.status(200).json(result);
   } catch (error) {
@@ -122,32 +136,38 @@ const resetPassword = async (req, res) => {
       if (error instanceof HttpError) {
           res.status(error.statusCode).json({ message: error.message });
       } else {
-          res.status(500).json({ message: "Erreur interne du serveur" });
+          res.status(500).json({ message: "Erreur interne du serveur." });
       }
   }
 };
 
-
 const updateUserInfo = async (req, res) => {
 
-  const userId = req.params.userId;
-  const { phone, firstname, lastname, address } = req.body;
+  const token = req.params.token;
 
   try {
-      // Appel du service pour mettre à jour les informations utilisateur
-      const updatedUser = await AuthService.updateUserInformation(userId, phone, { firstname, lastname, address });
+
+      const { phone, firstname, lastname, address } = req.body;
+
+      const updatedUser = await AuthService.updateUserInformation(token, phone, { firstname, lastname, address });
+      
       return res.status(200).json({ 
 
-        success: true,
-        message: 'Informations utilisateur mises à jour avec succès', 
-        user: updatedUser });
-        
+          success: true,
+          message: 'Informations utilisateur mises à jour avec succès',
+          user: updatedUser
+          
+      });
+
   } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Erreur interne du serveur.' });
+      if (error instanceof HttpError) {
+          res.status(error.statusCode).json({ message: error.message });
+      } else {
+          res.status(500).json({ message: 'Erreur interne du serveur.' });
+      }
   }
 };
-
 
 
 
