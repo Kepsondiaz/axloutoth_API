@@ -45,13 +45,6 @@ const UserSchema = new mongoose.Schema({
         enum: Object.values(Sexes),
     },
 
-    /*
-    email: {
-        type: String,
-        trim: true,
-    },
-    */
-
     role: {
         type: String,
         enum: Object.values(Roles),
@@ -87,6 +80,20 @@ const UserSchema = new mongoose.Schema({
         default: false,
     },
 
+    referralCode: { 
+        type: String,
+         unique: true 
+    },
+
+    referralLink: { 
+        type: String 
+    },
+
+    points: {
+         type: Number,
+         default: 0 
+    },
+    
     date: {
         type: Date,
         default: Date.now(),

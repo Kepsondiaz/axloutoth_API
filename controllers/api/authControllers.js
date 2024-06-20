@@ -65,6 +65,24 @@
   };
 
 
+  const sendReferralLink = async (req, res, next) => {
+
+    const { token } = req.params; 
+    const { referralLink } = req.body; 
+
+    try {
+        
+        const result = await AuthService.sendReferralLink(token, referralLink);
+        return res.json(result);
+
+    } catch (error) {
+       
+        if (error instanceof HttpError) {
+            return next(error);
+        }
+        return next(new HttpError(error, 500, "Erreur interne du serveur."));
+    }
+};
 
 
   /**
@@ -174,6 +192,7 @@
   module.exports = {
     authRegisterUser,
     completeRegistration,
+    sendReferralLink,
     authLoginUser,
     changePassword,
     resetPassword,

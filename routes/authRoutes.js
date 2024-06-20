@@ -32,6 +32,8 @@ router.post("/login", middleware.validateLogin, auth.authLoginUser)
 router.post("/complete-registration/:token", middleware.validateCompleteRegistration, auth.completeRegistration)
 
 
+// Envoyer le code de parainage à un autre utilisateur
+router.post("/send-reffaral-link/:token", auth.sendReferralLink)
 
 // Changer le mot de passe 
 router.post("/change-password/:token", middleware.validateChangePassword, auth.changePassword)

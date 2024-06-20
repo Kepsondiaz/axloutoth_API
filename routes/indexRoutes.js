@@ -7,6 +7,7 @@ const authRoutes = require("./authRoutes");
 const fileRoutes = require("./fileRoutes");
 
 router.use("/auth", authRoutes);
+/*
 router.use("/matieres", matiereRoutes)
 router.use("/chapitres", chapitreRoutes);
 router.use("/file", fileRoutes);

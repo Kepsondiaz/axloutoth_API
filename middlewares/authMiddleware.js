@@ -32,39 +32,36 @@
     };
 
 
+   
+const validateCompleteRegistration = (req, res, next) => {
+    const { niveau, serie, etablissement } = req.body;
 
-    const validateCompleteRegistration = (req, res, next) => {
+    if (!niveau || !etablissement) {
+        return res.status(400).json({
+            message: "Veuillez fournir le niveau et l'établissement.",
+        });
+    }
 
-        const { niveau, serie, etablissement } = req.body;
-        
-        if (!niveau || !etablissement) {
-            return res.status(400).json({
-                message: "Veuillez fournir le niveau et l'établissement.",
-            });
-        }
-    
-        // Valider le niveau
-        if (!Object.values(Niveaux).includes(niveau)) {
-            return res.status(400).json({
-                message: "Niveau invalide.",
-            });
-        }
-    
-        // Valider la série pour les niveaux SECOND et PREMIERE/TERMINAL
-        if (niveau === Niveaux.SECOND && (!serie || !(Series.SCIENTIFIQUE.includes(serie) || Series.LITTERAIRE.includes(serie)))) {
-            return res.status(400).json({
-                message: `Série invalide pour le niveau ${niveau}`,
-            });
-        } else if ((niveau === Niveaux.PREMIERE || niveau === Niveaux.TERMINAL) && (!serie || !Series.SCIENTIFIQUE.includes(serie))) {
-            return res.status(400).json({
-                message: `Série invalide pour le niveau ${niveau}`,
-            });
-        }
-    
-        next();
-    };
+    // Valider le niveau
+    if (!Object.values(Niveaux).includes(niveau)) {
+        return res.status(400).json({
+            message: "Niveau invalide.",
+        });
+    }
 
+    // Valider la série pour les niveaux SECOND et PREMIERE/TERMINAL
+    if (niveau === Niveaux.SECOND && (!serie || !(Series.SCIENTIFIQUE.includes(serie) || Series.LITTERAIRE.includes(serie)))) {
+        return res.status(400).json({
+            message: `Série invalide pour le niveau ${niveau}`,
+        });
+    } else if ((niveau === Niveaux.PREMIERE || niveau === Niveaux.TERMINAL) && !Series.SCIENTIFIQUE.includes(serie) && !Series.LITTERAIRE.includes(serie)) {
+        return res.status(400).json({
+            message: `Série invalide pour le niveau ${niveau}`,
+        });
+    }
 
+    next();
+};
     
     
     const validateLogin = (req, res, next) => {
@@ -216,48 +213,17 @@ const validateUpdateUserInfo = (req, res, next) => {
 
     next();
 };
-
     
 
-  /*  
+module.exports = {
 
-    const verifyToken = async (req, res, next) => {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
+    validateRegister,
+    validateCompleteRegistration,
+    validateLogin,
+    validateChangePassword,
+    validateForgotPassword,
+    validateResetPassword,
+    validateUpdateUserInfo
 
-        if (!token) {
-            return res.status(401).json({ message: 'Token non fourni' });
-        }
-
-        try {
-            const user = await AuthService.getCurrentUser(token);
-
-            if (!user) {
-                return res.status(404).json({ message: 'Utilisateur non trouvé' });
-            }
-
-            req.user = user;
-            next();
-        } catch (error) {
-            if (error instanceof HttpError) {
-                res.status(error.statusCode).json({ message: error.message });
-            } else {
-                res.status(500).json({ message: 'Erreur du serveur' });
-            }
-        }
-
-    }
-    */
-
-    module.exports = {
-
-        validateRegister,
-        validateCompleteRegistration,
-        validateLogin,
-        validateChangePassword,
-        validateForgotPassword,
-        validateResetPassword,
-        validateUpdateUserInfo
-
-    };
+};
 
