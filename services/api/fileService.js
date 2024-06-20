@@ -3,19 +3,24 @@ const MatiereModel = require("../../models/MatiereModel");
 const ChapitreModel = require("../../models/ChapitreModel");
 const { ObjectId } = require("mongodb");
 const { HttpError } = require("../../utils/exceptions");
-const { MIME_TYPE_FILE, MIME_TYPE_AUDIO } = require("../../config/multerConfig");
+const {
+  MIME_TYPE_FILE,
+  MIME_TYPE_AUDIO,
+} = require("../../config/multerConfig");
 
 class FileService {
-
   static async getAllFiles() {
     try {
       const files = await FileModel.find();
       return files;
     } catch (error) {
-      throw new HttpError(error, 500, "Erreur lors de la récupération des fichiers");
+      throw new HttpError(
+        error,
+        500,
+        "Erreur lors de la récupération des fichiers"
+      );
     }
   }
-  
 
   static async getOneFile(id) {
     if (!ObjectId.isValid(id)) throw new HttpError(null, 400, "ID invalide");
@@ -25,12 +30,15 @@ class FileService {
       if (!file) throw new HttpError(null, 404, "Fichier non trouvé");
       return file;
     } catch (error) {
-      throw new HttpError(error, 500, "Erreur lors de la récupération du fichier");
+      throw new HttpError(
+        error,
+        500,
+        "Erreur lors de la récupération du fichier"
+      );
     }
   }
-  
 
-  static async addOneFile(reqFile, matiereId, chapitreId) {
+  static async addFile(reqFile, matiereId, chapitreId) {
     try {
       if (!reqFile) throw new HttpError(null, 400, "Aucun fichier téléchargé");
 
@@ -40,20 +48,37 @@ class FileService {
       const chapitre = await ChapitreModel.findById(chapitreId);
       if (!chapitre) throw new HttpError(null, 404, "Chapitre non trouvé");
 
-      const typeMatiere = ["mathematique", "physique", "chimie", "SVT"].includes(matiere.intitule.toLowerCase()) ? "scientifique" : "litteraire";
+      const typeMatiere = [
+        "mathematique",
+        "physique",
+        "chimie",
+        "SVT",
+      ].includes(matiere.intitule.toLowerCase())
+        ? "scientifique"
+        : "litteraire";
 
       let allowedExtensions;
       if (typeMatiere === "scientifique") {
+        console.log(MIME_TYPE_FILE);
         allowedExtensions = Object.values(MIME_TYPE_FILE);
       } else {
-        allowedExtensions = [...Object.values(MIME_TYPE_FILE), ...Object.values(MIME_TYPE_AUDIO)];
+        allowedExtensions = [
+          ...Object.values(MIME_TYPE_FILE),
+          ...Object.values(MIME_TYPE_AUDIO),
+        ];
       }
 
       const fileMimeType = reqFile.mimetype;
-      const fileExtension = fileMimeType && allowedExtensions.find(ext => ext === fileMimeType.split('/')[1]);
+      const fileExtension =
+        fileMimeType &&
+        allowedExtensions.find((ext) => ext === fileMimeType.split("/")[1]);
 
       if (!fileExtension) {
-        throw new HttpError(null, 400, `Extension de fichier non supportée pour une matière ${typeMatiere}`);
+        throw new HttpError(
+          null,
+          400,
+          `Extension de fichier non supportée pour une matière ${typeMatiere}`
+        );
       }
 
       const file = await FileModel.create({
@@ -69,7 +94,11 @@ class FileService {
 
       return { file, matiere, chapitre };
     } catch (error) {
-      throw new HttpError(error, error.statusCode || 500, error.message || "Erreur lors de l'ajout du fichier");
+      throw new HttpError(
+        error,
+        error.statusCode || 500,
+        error.message || "Erreur lors de l'ajout du fichier"
+      );
     }
   }
 
@@ -77,11 +106,17 @@ class FileService {
     if (!ObjectId.isValid(id)) throw new HttpError(null, 400, "ID invalide");
 
     try {
-      const file = await FileModel.findByIdAndUpdate(id, updatedData, { new: true });
+      const file = await FileModel.findByIdAndUpdate(id, updatedData, {
+        new: true,
+      });
       if (!file) throw new HttpError(null, 404, "Fichier non trouvé");
       return file;
     } catch (error) {
-      throw new HttpError(error, 500, "Erreur lors de la mise à jour du fichier");
+      throw new HttpError(
+        error,
+        500,
+        "Erreur lors de la mise à jour du fichier"
+      );
     }
   }
 
@@ -93,7 +128,11 @@ class FileService {
       if (!file) throw new HttpError(null, 404, "Fichier non trouvé");
       return { message: "Fichier supprimé avec succès" };
     } catch (error) {
-      throw new HttpError(error, 500, "Erreur lors de la suppression du fichier");
+      throw new HttpError(
+        error,
+        500,
+        "Erreur lors de la suppression du fichier"
+      );
     }
   }
 }
