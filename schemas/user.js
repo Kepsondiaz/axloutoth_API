@@ -12,13 +12,13 @@ const Sexes = Object.freeze({
 });
 
 const Niveaux = Object.freeze({
-    SECOND: "Second",
-    PREMIERE: "Premiere",
-    TERMINAL: "Terminal",
+    SECOND: "Seconde",
+    PREMIERE: "Première",
+    TERMINAL: "Terminale",
 });
 
 const Series = Object.freeze({
-    SCIENTIFIQUE: ["S1", "S1A","S2A", "S2", "S3"],
+    SCIENTIFIQUE: ["S1", "S2", "S3"],
     LITTERAIRE: ["L1", "L2", "L1'"],
 });
 

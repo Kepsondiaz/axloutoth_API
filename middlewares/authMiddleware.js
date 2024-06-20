@@ -171,30 +171,31 @@ const validateForgotPassword = async (req, res, next) => {
 
 
 const validateResetPassword = async (req, res, next) => {
-
+    
     const { phone, newPassword } = req.body;
-  
+
     // Vérification des champs requis
     if (!phone || !newPassword) {
         return res.status(400).json({ message: "Veuillez fournir le numéro de téléphone et le nouveau mot de passe." });
     }
-  
+
     try {
-        // Vérification si l'utilisateur existe dans la base de données par numéro de téléphone
+        // Vérification si l'utilisateur existe dans la base de données par téléphone
         const user = await User.findOne({ phone });
         if (!user) {
             return res.status(404).json({ message: "Utilisateur non trouvé avec ce numéro de téléphone." });
         }
-  
+
         // Ajout de l'utilisateur à la requête pour le contrôleur
         req.user = user;
         next();
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Erreur interne du serveur." });
-    }
+    }  res.status(500).json({ message: "Erreur interne du serveur." });
+
+}
     
-  };
 
 
 const validateUpdateUserInfo = (req, res, next) => {

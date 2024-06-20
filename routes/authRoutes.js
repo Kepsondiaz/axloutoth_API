@@ -3,6 +3,12 @@ const middleware = require("../middlewares/authMiddleware.js");
 const auth = require("../controllers/api/authControllers.js");
 const router = express.Router();
 
+/**
+ * @swagger
+ * @tags: ['Users']
+ * ...
+ */
+
 router.get("/", (req, res) => {
     res.json({ message: "Welcome to the authentication." });
 });

@@ -1,10 +1,12 @@
+const mongoose = require('mongoose');
 const Chapitre = require("../../models/ChapitreModel");
 const { HttpError } = require('../../utils/exceptions');
 const Matiere = require("../../models/MatiereModel");
 
+
 class ChapitreService {
 
-    static async createChapitre(matiereId, intitule, file) {
+    static async createChapitre(matiereId, intitule) {
         try {
             // Vérifier si la matière existe
             const matiere = await Matiere.findById(matiereId);
@@ -12,80 +14,56 @@ class ChapitreService {
                 throw new Error('Matière non trouvée');
             }
 
-            // Traiter le téléchargement de fichier avec Multer
-            const fileName = file.filename;
-            const filePath = file.path;
-
-            // Créer un nouveau chapitre avec les informations de fichier et de matière
+            // Créer un nouveau chapitre avec les informations fournies
             const chapitre = await Chapitre.create({
                 intitule: intitule,
-                fileName: fileName,
-                filePath: filePath,
                 matiere: matiereId
             });
-
-            return chapitre;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    }
-
-    static async getAllChapitres() {
-        try {
-            return await Chapitre.find();
-        } catch (error) {
-            console.error(error);
-            throw new HttpError(error, 500, 'Erreur interne du serveur');
-        }
-    }
-
-
-
-
-    /*
-    static async createChapitre(matiereId, chapitreData) {
-        try {
-            // Ajouter l'ID de la matière dans les données du chapitre
-            chapitreData.matiere = matiereId;
-
-            // Créer le chapitre avec les données fournies
-            const chapitre = await Chapitre.create(chapitreData);
 
             // Mettre à jour la matière avec l'ID du nouveau chapitre
             await Matiere.findByIdAndUpdate(matiereId, { $push: { chapitres: chapitre._id } });
 
-            // Retourner le chapitre créé
             return chapitre;
         } catch (error) {
-            throw new HttpError(error, 400, error.message);
+            throw new HttpError(error, 500, 'Erreur interne du serveur');
         }
     }
-
 
     static async getAllChapitres() {
+
         try {
-            return await Chapitre.find();
+            return await Chapitre.find().populate('matiere', 'intitule'); 
         } catch (error) {
             console.error(error);
             throw new HttpError(error, 500, 'Erreur interne du serveur');
         }
     }
 
-    static async getChapitreById(chapitreId) {
+    static async getMatiereById(matiereId) {
         try {
-            const chapitre = await Chapitre.findById(chapitreId);
+            if (!mongoose.Types.ObjectId.isValid(matiereId)) {
+                throw new HttpError(null, 400, 'ID de matière invalide');
+            }
+            
+            const matiere = await Matiere.findById(matiereId);
+            if (!matiere) {
+                throw new HttpError(null, 404, 'Matière non trouvée');
+            }
 
-            if (!chapitre) throw new HttpError(null, 404, 'Chapitre non trouvé');
-            return chapitre;
+            return matiere;
+
         } catch (error) {
             console.error(error);
-            throw new HttpError(error, 500, 'Erreur interne du serveur');
+            throw new HttpError(error, error.statusCode || 500, error.message || 'Erreur interne du serveur');
         }
     }
+
 
     static async updateChapitre(chapitreId, updatedChapitreData) {
         try {
-            const chapitre = await Chapitre.findByIdAndUpdate(chapitreId, updatedChapitreData, { new: true });
+            const chapitre = await Chapitre.findByIdAndUpdate(chapitreId, 
+                updatedChapitreData, 
+                { new: true }).populate('matiere', 'intitule');
 
             if (!chapitre) throw new HttpError(null, 404, 'Chapitre non trouvé');
             return chapitre;
@@ -97,10 +75,12 @@ class ChapitreService {
 
     static async deleteChapitre(chapitreId) {
         try {
-            const chapitre = await Chapitre.findByIdAndDelete(chapitreId);
-
+            const chapitre = await Chapitre.findByIdAndDelete(chapitreId).populate('matiere', 'intitule');
             if (!chapitre) throw new HttpError(null, 404, 'Chapitre non trouvé');
-            await Matiere.updateMany({}, { $pull: { chapitres: chapitreId } });
+            
+            // Supprimer l'ID du chapitre de la liste des chapitres de la matière
+            await Matiere.findByIdAndUpdate(chapitre.matiere, { $pull: { chapitres: chapitreId } });
+
             return chapitre;
         } catch (error) {
             console.error(error);
@@ -108,19 +88,29 @@ class ChapitreService {
         }
     }
 
-    static async searchChapitres(query) {
+    
+     
+    static async searchChapitre(intitule, matiereId) {
         try {
-            return await Chapitre.find({
-                intitule: { $regex: query, $options: 'i' }, // Recherche insensible à la casse
+            // Vérifier si matiereId est un ObjectId valide
+            if (!mongoose.Types.ObjectId.isValid(matiereId)) {
+                throw new HttpError(null, 400, 'ID de matière invalide');
+            }
+
+            // Rechercher les chapitres par intitulé et matière
+            const chapitres = await Chapitre.find({
+
+                intitule: { $regex: new RegExp(intitule, 'i') }, 
+                matiere: matiereId, 
                 isDelete: false
             });
+
+            return chapitres;
         } catch (error) {
             console.error(error);
-            throw new HttpError(error, 500, 'Erreur interne du serveur');
+            throw new HttpError(error, error.statusCode || 500, error.message || 'Erreur interne du serveur');
         }
     }
-    
-    */
 }
 
 module.exports = ChapitreService;

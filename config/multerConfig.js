@@ -11,6 +11,11 @@ const MIME_TYPE_PICTURE = {
   "image/png": "png",
 };
 
+const MIME_TYPE_AUDIO = {
+  "audio/mpeg": "mp3",
+  "audio/wav": "wav",
+};
+
 const storageFile = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "./public/documents");
@@ -22,11 +27,8 @@ const storageFile = multer.diskStorage({
   },
 });
 
-module.exports.fileUpload = multer({ storage: storageFile }).single("file");
-
 const storagePicture = multer.diskStorage({
   destination: (req, file, callback) => {
-    // console.log("Destination Middleware Log:", file);
     callback(null, "./public/pictures");
   },
   filename: (req, file, callback) => {
@@ -36,6 +38,18 @@ const storagePicture = multer.diskStorage({
   },
 });
 
-module.exports.pictureUpload = multer({ storage: storagePicture }).single(
-  "picture"
-);
+const storageAudio = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, path.join(__dirname, "../public/audio"));
+  },
+  filename: (req, file, callback) => {
+    const extension = MIME_TYPE_AUDIO[file.mimetype];
+    callback(null, Date.now() + "-" + file.originalname + "." + extension);
+  },
+});
+
+const fileUpload = multer({ storage: storageFile }).single("file");
+const pictureUpload = multer({ storage: storagePicture }).single("picture");
+const audioUpload = multer({ storage: storageAudio }).single("audio");
+
+module.exports = { fileUpload, pictureUpload, audioUpload };

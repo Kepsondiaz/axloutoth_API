@@ -1,12 +1,10 @@
 const { HttpError } = require('../../utils/exceptions');
-const Matiere = require("../../models/MatiereModel")
-
+const Matiere = require("../../models/MatiereModel");
 
 class MatiereService {
   
   static async createMatiere(matiereData) {
     try {
-      // Vérifier si une matière avec le même intitulé existe déjà
       const existingMatiere = await Matiere.findOne({
         intitule: matiereData.intitule,
         isDelete: false
@@ -15,7 +13,6 @@ class MatiereService {
         throw new HttpError(null, 400, `La matière ${matiereData.intitule} existe déjà`);
       }
 
-      // Créer une nouvelle matière si elle n'existe pas déjà
       const matiere = await Matiere.create(matiereData);
       return matiere;
     } catch (error) {
@@ -39,7 +36,9 @@ class MatiereService {
         isDelete: false
       });
 
-      if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
+      if (!matiere) {
+        throw new HttpError(null, 404, 'Matière non trouvée');
+      }
       return matiere;
     } catch (error) {
       console.error(error);
@@ -49,15 +48,18 @@ class MatiereService {
 
   static async updateMatiere(matiereId, updatedMatiereData) {
     try {
-      const matiere = await Matiere.findOneAndUpdate({
-        _id: matiereId,
-        isDelete: false
-      },
-        updatedMatiereData,
+      const { intitule } = updatedMatiereData;
+      
+      const matiere = await Matiere.findOneAndUpdate(
+        { _id: matiereId, isDelete: false },
+        { intitule },
         { new: true }
       );
 
-      if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
+      if (!matiere) {
+        throw new HttpError(null, 404, 'Matière non trouvée');
+      }
+
       return matiere;
     } catch (error) {
       console.error(error);
@@ -75,7 +77,9 @@ class MatiereService {
         { new: true }
       );
 
-      if (!matiere) throw new HttpError(null, 404, 'Matière non trouvée');
+      if (!matiere) {
+        throw new HttpError(null, 404, 'Matière non trouvée');
+      }
       return matiere;
     } catch (error) {
       console.error(error);
@@ -83,9 +87,9 @@ class MatiereService {
     }
   }
 
+  
   static async searchMatiereByIntitule(intitule) {
     try {
-      // Rechercher les matières par intitulé
       const matieres = await Matiere.find({
         intitule: { $regex: new RegExp(intitule, 'i') },
         isDelete: false
@@ -96,21 +100,7 @@ class MatiereService {
       throw new HttpError(error, 500, 'Erreur interne du serveur');
     }
   }
-
-  /* Nouvelle méthode pour la recherche des matières
- static async searchMatieres(query) {
-   try {
-     return await Matiere.find({
-       intitule: { $regex: query, $options: 'i' },
-       isDelete: false
-     });
-   } catch (error) {
-     console.error(error);
-     throw new HttpError(error, 500, 'Erreur interne du serveur');
-   }
- }
- */
-
+  
 }
 
 module.exports = MatiereService;

@@ -3,9 +3,8 @@ const Schema = mongoose.Schema;
 
 const ChapitreSchema = new Schema({
     intitule: { type: String, required: true },
-    fileName: { type: String, required: true },
-    filePath: { type: String, required: true },
-    matiere: { type: mongoose.Schema.Types.ObjectId, ref: 'Matiere', required: true },
+    files: [{ type: mongoose.Schema.Types.ObjectId, ref: "file" }],
+    matiere: { type: mongoose.Schema.Types.ObjectId, ref: 'matiere', required: true },
     isDelete: { type: Boolean, default: false }
 });
 const skipDeleted = function () {

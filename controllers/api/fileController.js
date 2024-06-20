@@ -1,91 +1,87 @@
-const FileModel = require("../../models/FileModel");
-const { ObjectId } = require("mongodb");
-const Matiere = require("../../models/MatiereModel");
+const FileService = require("../../services/api/fileService");
+const { HttpError } = require("../../utils/exceptions");
 
-module.exports.getAllFiles = async (req, res) => {
+const getAllFiles = async (req, res) => {
   try {
-    const files = await FileModel.find().select("-password");
-    return res.status(200).json({ files });
-  } catch (err) {
-    return res.status(400).json({ error: err });
-  }
-};
-
-module.exports.getOneFile = async (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
-    return res.status(400).send("ID unknown");
-  try {
-    const file = await FileModel.findById({ _id: req.params.id });
-    return res.status(200).json({ file });
-  } catch (err) {
-    return res.status(400).json({ error: err });
-  }
-};
-
-module.exports.addOneFile = async (req, res) => {
-  // if (
-  //   !ObjectId.isValid(req.params.id_matiere) &&
-  //   !(await Matiere.exists({ _id: req.params.id_matiere }))
-  // )
-  //   return res.status(400).send("ID unknown");
-  const { date, file } = req.body;
-  console.log(date, file);
-  try {
-    console.log(req.file); // Ajoutez ce log pour vérifier que req.file est défini
-
-    if (!req.file) {
-      return res.status(400).send("No file uploaded");
-    }
-
-    const file = await FileModel.create({
-      date,
-      size: req.file.size,
-      filepath: `${req.protocol}://${process.env.HOST}:${process.env.PORT}/api/v1/file/${req.file.originalname}`,
-    });
-
-    const matiere = await Matiere.findOneAndUpdate(
-      { _id: req.params.id_matiere },
-      {
-        $push: {
-          files: file._id,
-        },
-      },
-      { new: true } // Pour retourner le document mis à jour
-    );
-    res.status(200).json({ file: file, matiere: matiere });
+    const files = await FileService.getAllFiles();
+    res.status(200).json(files);
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ error });
+    if (error instanceof HttpError) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      console.error("Erreur dans getAllFiles :", error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
   }
 };
 
-module.exports.updateFile = async (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
-    return res.status(400).send("ID unknown");
+const getOneFile = async (req, res) => {
+  const fileId = req.params.id;
 
   try {
-    const file = await FileModel.findByIdAndUpdate(
-      { _id: req.params.id },
-      {
-        $set: {
-          date: req.body.date,
-        },
-      }
-    );
-    res.status(200).json({ file });
-  } catch (err) {
-    return res.status(500).json({ message: err });
+    const file = await FileService.getOneFile(fileId);
+    res.status(200).json(file);
+  } catch (error) {
+    if (error instanceof HttpError) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      console.error("Erreur dans getOneFile :", error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
   }
 };
 
-module.exports.deleteFile = async (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
-    return res.status(400).send("ID unknown");
+const addOneFile = async (req, res, matiereId, chapitreId) => {
+  try {
+    const result = await FileService.addOneFile(req.file, matiereId, chapitreId);
+    res.status(201).json(result);
+  } catch (error) {
+    if (error instanceof HttpError) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      console.error("Erreur dans addOneFile :", error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
+  }
+};
+
+const updateFile = async (req, res) => {
+  const fileId = req.params.id;
+  const updatedData = req.body;
 
   try {
-    await FileModel.remove({ _id: req.params.id }).exec();
-    return res.status(200).json({ message: "Successfully deleted" });
-  } catch (err) {
-    return res.status(400).json({ error: err });
+    const updatedFile = await FileService.updateFile(fileId, updatedData);
+    res.status(200).json(updatedFile);
+  } catch (error) {
+    if (error instanceof HttpError) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      console.error("Erreur dans updateFile :", error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
   }
+};
+
+const deleteFile = async (req, res) => {
+  const fileId = req.params.id;
+
+  try {
+    const result = await FileService.deleteFile(fileId);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof HttpError) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      console.error("Erreur dans deleteFile :", error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
+  }
+};
+
+module.exports = {
+  getAllFiles,
+  getOneFile,
+  addOneFile,
+  updateFile,
+  deleteFile,
 };

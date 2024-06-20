@@ -11,11 +11,13 @@ const MatiereTypes = Object.freeze({
 });
 
 const MatiereSchema = new Schema({
+
   intitule: {
     type: String,
     enum: Object.values(MatiereTypes),
     required: true,
   },
+  
   files: [{ type: mongoose.Schema.Types.ObjectId, ref: "file" }],
   chapitres: [{ type: Schema.Types.ObjectId, ref: "chapitre" }], // Référence aux chapitres associés
   isDelete: { type: Boolean, default: false },
