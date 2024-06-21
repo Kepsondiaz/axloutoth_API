@@ -23,7 +23,8 @@ const storageFile = multer.diskStorage({
   filename: (req, file, callback) => {
     console.log(file, "ok");
     const extension = MIME_TYPE_FILE[file.mimetype];
-    callback(null, Date.now() + "-" + file.originalname + "." + extension);
+
+    callback(null, Date.now() + "-" + file.originalname);
   },
 });
 
@@ -52,4 +53,10 @@ const fileUpload = multer({ storage: storageFile }).single("file");
 const pictureUpload = multer({ storage: storagePicture }).single("picture");
 const audioUpload = multer({ storage: storageAudio }).single("audio");
 
-module.exports = { fileUpload, pictureUpload, audioUpload };
+module.exports = {
+  fileUpload,
+  pictureUpload,
+  audioUpload,
+  MIME_TYPE_FILE,
+  MIME_TYPE_AUDIO,
+};

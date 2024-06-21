@@ -33,14 +33,16 @@ const getOneFile = async (req, res) => {
 
 const addOneFile = async (req, res, matiereId, chapitreId) => {
   try {
-    const result = await FileService.addOneFile(req.file, matiereId, chapitreId);
+    console.log("req.file", req.file);
+    const result = await FileService.addFile(req.file, matiereId, chapitreId);
     res.status(201).json(result);
   } catch (error) {
+    console.log("error addonefile", error);
     if (error instanceof HttpError) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error("Erreur dans addOneFile :", error);
-      res.status(500).json({ message: "Erreur interne du serveur" });
+      res.status(500).json({ message: "Erreur interne du serveur ici" });
     }
   }
 };
