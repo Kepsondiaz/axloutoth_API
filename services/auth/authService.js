@@ -1,7 +1,7 @@
 const UserService = require("../api/userService.js");
-const User = require("../../models/User.js");
+const User = require("../../models/auth/User.js");
 const { HttpError } = require("../../utils/exceptions.js");
-const { Niveaux, Series } = require('../../schemas/user.js'); 
+const { Niveaux, Series } = require('../../schemas/auth/user.js'); 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 

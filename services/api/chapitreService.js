@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Chapitre = require("../../models/ChapitreModel");
+const Chapitre = require("../../models/api/ChapitreModel");
 const { HttpError } = require('../../utils/exceptions');
-const Matiere = require("../../models/MatiereModel");
+const Matiere = require("../../models/api/MatiereModel");
 
 
 class ChapitreService {

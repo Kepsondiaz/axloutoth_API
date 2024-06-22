@@ -1,6 +1,6 @@
 const { HttpError } = require('../../utils/exceptions');
-const Matiere = require("../../models/MatiereModel")
-const Chapitre = require("../../models/ChapitreModel")
+const Matiere = require("../../models/api/MatiereModel")
+const Chapitre = require("../../models/api/ChapitreModel")
 
 
 

@@ -80,10 +80,34 @@ const deleteFile = async (req, res) => {
   }
 };
 
+
+const downloadFile = async (req, res) => {
+
+  const fileId = req.params.id;
+
+  try {
+
+    result = await FileService.downloadFile(fileId);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof HttpError) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      console.error("Erreur lors du téléchargement du fichier:", error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
+  }
+};
+
+
+
+
+
 module.exports = {
   getAllFiles,
   getOneFile,
   addOneFile,
   updateFile,
   deleteFile,
+  downloadFile,
 };

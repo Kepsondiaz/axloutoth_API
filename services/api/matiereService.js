@@ -1,5 +1,5 @@
 const { HttpError } = require('../../utils/exceptions');
-const Matiere = require("../../models/MatiereModel");
+const Matiere = require("../../models/api/MatiereModel");
 
 class MatiereService {
   

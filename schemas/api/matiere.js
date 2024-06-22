@@ -5,7 +5,7 @@ const MatiereTypes = Object.freeze({
   MATHEMATIQUE: "mathematique",
   PHYSIQUE: "physique",
   CHIMIE: "chimie",
-  SVT: "SVT",
+  SVT: "svt",
   FRANCAIS: "français",
   PHILOSOPHIE: "philosophie",
 });

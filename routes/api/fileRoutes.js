@@ -7,9 +7,10 @@ const {
   getOneFile,
   getAllFiles,
   addOneFile,
-} = require("../controllers/api/fileController");
+} = require("../../controllers/api/fileController");
 
-const { fileUpload } = require("../config/multerConfig");
+const { fileUpload } = require("../../config/multerConfig");
+const { downloadFile } = require("../../services/api/fileService");
 
 // Route pour ajouter un fichier
 router.post(
@@ -37,5 +38,9 @@ router.put("/update-file/:id", updateFile);
 
 // Route pour supprimer un fichier par ID
 router.delete("/delete-file/:id", deleteFile);
+
+// Route pour teleecharger un fichier par ID
+router.get("/download-file/:id", downloadFile)
+
 
 module.exports = router;

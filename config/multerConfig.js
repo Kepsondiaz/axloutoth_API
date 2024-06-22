@@ -50,8 +50,9 @@ const storageAudio = multer.diskStorage({
 });
 
 const fileUpload = multer({ storage: storageFile }).single("file");
-const pictureUpload = multer({ storage: storagePicture }).single("picture");
+const pictureUpload = multer({ storage: storagePicture }).single("image");
 const audioUpload = multer({ storage: storageAudio }).single("audio");
+
 
 module.exports = {
   fileUpload,

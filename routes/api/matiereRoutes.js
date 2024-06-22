@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const MatiereController = require('../controllers/api/MatiereController');
+const MatiereController = require('../../controllers/api/MatiereController');
 
 
 router.post('/', MatiereController.createMatiere);

@@ -1,8 +1,8 @@
     const validator = require("../utils/integrity");
     const bcrypt = require("bcryptjs");
     const mongoose = require("mongoose");
-    const User = require("../models/User")
-    const {Niveaux,Series} = require("../schemas/user")
+    const User = require("../models/auth/User")
+    const {Niveaux,Series} = require("../schemas/auth/user")
     const jwt = require("jsonwebtoken");
 
 

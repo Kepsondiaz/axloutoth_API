@@ -1,8 +1,9 @@
-const FileModel = require("../../models/FileModel");
-const MatiereModel = require("../../models/MatiereModel");
-const ChapitreModel = require("../../models/ChapitreModel");
+const FileModel = require("../../models/api/FileModel");
+const MatiereModel = require("../../models/api/MatiereModel");
+const ChapitreModel = require("../../models/api/ChapitreModel");
 const { ObjectId } = require("mongodb");
 const { HttpError } = require("../../utils/exceptions");
+const { SCIENTIFIC_SUBJECTS, LITERARY_SUBJECTS } = require("../../utils/enumeration")
 const {
   MIME_TYPE_FILE,
   MIME_TYPE_AUDIO,
@@ -48,21 +49,21 @@ class FileService {
       const chapitre = await ChapitreModel.findById(chapitreId);
       if (!chapitre) throw new HttpError(null, 404, "Chapitre non trouvé");
 
-      const typeMatiere = [
-        "mathematique",
-        "physique",
-        "chimie",
-        "SVT",
-      ].includes(matiere.intitule.toLowerCase())
-        ? "scientifique"
-        : "litteraire";
+      const typeMatiere = SCIENTIFIC_SUBJECTS.includes(matiere.intitule.toLowerCase())
+      ? "scientifique"
+      : LITERARY_SUBJECTS.includes(matiere.intitule.toLowerCase())
+      ? "litteraire"
+      : null;
+
+      if (!typeMatiere) {
+        throw new HttpError(null, 400, "Type de matière non supporté");
+      }
 
       let allowedExtensions;
       if (typeMatiere === "scientifique") {
-        console.log(MIME_TYPE_FILE);
         allowedExtensions = Object.values(MIME_TYPE_FILE);
       } else {
-        allowedExtensions = [
+         allowedExtensions = [
           ...Object.values(MIME_TYPE_FILE),
           ...Object.values(MIME_TYPE_AUDIO),
         ];
@@ -121,6 +122,7 @@ class FileService {
   }
 
   static async deleteFile(id) {
+    
     if (!ObjectId.isValid(id)) throw new HttpError(null, 400, "ID invalide");
 
     try {
@@ -132,6 +134,33 @@ class FileService {
         error,
         500,
         "Erreur lors de la suppression du fichier"
+      );
+    }
+  }
+
+
+  static async downloadFile(id) {
+    
+    if (!ObjectId.isValid(id)) {
+      throw new HttpError(null, 400, "ID invalide");
+    }
+
+    try {
+      const file = await FileModel.findById(id);
+      if (!file) {
+        throw new HttpError(null, 404, "Fichier non trouvé");
+      }
+
+      return {
+        success: true,
+        message: "Fichier téléchargé avec succès",
+        data: file
+      };
+    } catch (error) {
+      throw new HttpError(
+        error,
+        error.statusCode || 500,
+        error.message || "Erreur lors du téléchargement du fichier"
       );
     }
   }

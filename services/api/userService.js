@@ -1,10 +1,11 @@
-const User = require("../../models/User.js");
+const User = require("../../models/auth/User.js");
 const { HttpError } = require("../../utils/exceptions.js");
 const integretyTester = require("../../utils/integrity.js");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 
 class UserService {
+    
     static async validateUserData(userData) {
         const errors = validationResult(userData);
         if (!errors.isEmpty()) {
