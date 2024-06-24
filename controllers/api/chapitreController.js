@@ -98,17 +98,20 @@ class ChapitreController {
     }
 
     static async searchChapitre(req, res) {
+
         const { intitule } = req.body;
-        const { matiereId } = req.params;
+    
 
         try {
-            // Vérifier si matiereId est un ObjectId valide
+            
+            /* Vérifier si matiereId est un ObjectId valide
             if (!mongoose.Types.ObjectId.isValid(matiereId)) {
                 throw new HttpError(null, 400, 'ID de matière invalide');
             }
+            */
 
             // Appeler la méthode de service pour rechercher les chapitres
-            const chapitres = await ChapitreService.searchChapitre(intitule, matiereId);
+            const chapitres = await ChapitreService.searchChapitre(intitule);
 
             // Vérifier s'il y a des résultats
             if (chapitres.length === 0) {

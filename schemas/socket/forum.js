@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const ForumSchema = new mongoose.Schema({
+
   name: {
     type: String,
   },
@@ -8,11 +9,23 @@ const ForumSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  matiere: {
+
+  regle:{
+    type: String,
+  },
+
+  matiereId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "matiere",
     required: true,
   },
+
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
+  },
+
   isDeleted: {
     type: Boolean,
     default: false,

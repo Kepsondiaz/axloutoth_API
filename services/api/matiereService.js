@@ -87,6 +87,7 @@ class MatiereService {
     }
   }
 
+
   
   static async searchMatiereByIntitule(intitule) {
     try {
@@ -100,6 +101,7 @@ class MatiereService {
       throw new HttpError(error, 500, 'Erreur interne du serveur');
     }
   }
+  
   
 }
 

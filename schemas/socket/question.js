@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const QuestionSchema = new mongoose.Schema({
+  
   forumId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "forum",
@@ -9,7 +10,7 @@ const QuestionSchema = new mongoose.Schema({
   // celui qui à poser la question
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: "users",
     required: true,
   },
 

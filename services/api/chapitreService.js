@@ -89,26 +89,18 @@ class ChapitreService {
     }
 
     
-     
-    static async searchChapitre(intitule, matiereId) {
+
+    
+    static async searchChapitre(intitule) {
         try {
-            // Vérifier si matiereId est un ObjectId valide
-            if (!mongoose.Types.ObjectId.isValid(matiereId)) {
-                throw new HttpError(null, 400, 'ID de matière invalide');
-            }
-
-            // Rechercher les chapitres par intitulé et matière
-            const chapitres = await Chapitre.find({
-
-                intitule: { $regex: new RegExp(intitule, 'i') }, 
-                matiere: matiereId, 
-                isDelete: false
-            });
-
-            return chapitres;
+          const chapitres = await Chapitre.find({
+            intitule: { $regex: new RegExp(intitule, 'i') },
+            isDelete: false
+          }).populate('matiere', 'intitule');
+          return chapitres;
         } catch (error) {
-            console.error(error);
-            throw new HttpError(error, error.statusCode || 500, error.message || 'Erreur interne du serveur');
+          console.error(error);
+          throw new HttpError(error, 500, 'Erreur interne du serveur');
         }
     }
 }

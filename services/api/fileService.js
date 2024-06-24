@@ -39,7 +39,8 @@ class FileService {
     }
   }
 
-  static async addFile(reqFile, matiereId, chapitreId) {
+  static async addOneFile(reqFile, matiereId, chapitreId) {
+
     try {
       if (!reqFile) throw new HttpError(null, 400, "Aucun fichier téléchargé");
 
@@ -50,31 +51,36 @@ class FileService {
       if (!chapitre) throw new HttpError(null, 404, "Chapitre non trouvé");
 
       const typeMatiere = SCIENTIFIC_SUBJECTS.includes(matiere.intitule.toLowerCase())
-      ? "scientifique"
-      : LITERARY_SUBJECTS.includes(matiere.intitule.toLowerCase())
-      ? "litteraire"
-      : null;
+        ? "scientifique"
+        : LITERARY_SUBJECTS.includes(matiere.intitule.toLowerCase())
+        ? "littéraire"
+        : null;
 
       if (!typeMatiere) {
         throw new HttpError(null, 400, "Type de matière non supporté");
       }
 
-      let allowedExtensions;
+      let allowedMimeTypes;
+
       if (typeMatiere === "scientifique") {
-        allowedExtensions = Object.values(MIME_TYPE_FILE);
+
+        allowedMimeTypes = [MIME_TYPE_FILE["application/pdf"]];
+
       } else {
-         allowedExtensions = [
-          ...Object.values(MIME_TYPE_FILE),
-          ...Object.values(MIME_TYPE_AUDIO),
+        allowedMimeTypes = [
+
+          MIME_TYPE_FILE["application/pdf"],
+          MIME_TYPE_AUDIO["audio/mpeg"],
+          MIME_TYPE_AUDIO["audio/wav"],
+          MIME_TYPE_AUDIO["audio/ogg"],
+          
         ];
       }
 
       const fileMimeType = reqFile.mimetype;
-      const fileExtension =
-        fileMimeType &&
-        allowedExtensions.find((ext) => ext === fileMimeType.split("/")[1]);
+      const isAllowedMimeType = allowedMimeTypes.includes(fileMimeType);
 
-      if (!fileExtension) {
+      if (!isAllowedMimeType) {
         throw new HttpError(
           null,
           400,
@@ -85,6 +91,7 @@ class FileService {
       const file = await FileModel.create({
         size: reqFile.size,
         filepath: `${reqFile.path}`,
+        mimetype: fileMimeType,
       });
 
       matiere.files.push(file._id);
@@ -95,6 +102,7 @@ class FileService {
 
       return { file, matiere, chapitre };
     } catch (error) {
+      console.error(error);
       throw new HttpError(
         error,
         error.statusCode || 500,

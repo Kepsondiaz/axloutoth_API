@@ -34,7 +34,7 @@ const getOneFile = async (req, res) => {
 const addOneFile = async (req, res, matiereId, chapitreId) => {
   try {
     console.log("req.file", req.file);
-    const result = await FileService.addFile(req.file, matiereId, chapitreId);
+    const result = await FileService.addOneFile(req.file, matiereId, chapitreId);
     res.status(201).json(result);
   } catch (error) {
     console.log("error addonefile", error);
@@ -104,9 +104,9 @@ const downloadFile = async (req, res) => {
 
 
 module.exports = {
+  addOneFile,
   getAllFiles,
   getOneFile,
-  addOneFile,
   updateFile,
   deleteFile,
   downloadFile,

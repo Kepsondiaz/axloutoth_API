@@ -1,56 +1,72 @@
 const QuestionService = require("../../services/socket/questionService")
 
-
-const addQuestion = async (req, res) => {
-
-    try {
-
-      const {forumId} = req.params;
-      const { content } = req.body;
-      const result = await QuestionService.addQuestion(forumId, content);
-      res.status(201).json(result);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
+const addQuestion = async (req) => {
+  try {
+    const { userId, forumId } = req.params;
+    const { content } = req.body;
+    const result = await QuestionService.addQuestion(userId, forumId, content);
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };
 
-
-const getQuestionsByForum = async (req, res) => {
-    try {
-      const { forumId } = req.params;
-      const result = await QuestionService.getQuestionsByForum(forumId);
-      res.json(result);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
+const getQuestionsByForum = async (req) => {
+  try {
+    const { forumId } = req.params;
+    const questions = await QuestionService.getQuestionsByForum(forumId);
+    return questions;
+  } catch (err) {
+    throw err;
+  }
 };
 
-
-const updateQuestion = async (req, res) => {
-    try {
-      const { questionId } = req.params;
-      const { content } = req.body;
-      const result = await QuestionService.updateQuestion(questionId, content);
-      res.json(result);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
+const updateQuestion = async (req) => {
+  try {
+    const { userId, questionId } = req.params;
+    const { content } = req.body;
+    const result = await QuestionService.updateQuestion(userId, questionId, content);
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };
 
+const respondToQuestion = async (req) => {
+  try {
+    const { userId, questionId } = req.params;
+    const result = await QuestionService.respondToQuestion(userId, questionId);
+    return result;
+  } catch (err) {
+    throw err;
+  }
+};
 
-const markQuestionAsCompleted = async (req, res) => {
-    try {
-      const { questionId } = req.params;
-      const result = await QuestionService.markQuestionAsCompleted(questionId);
-      res.json(result);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  };
-  
-  module.exports = { 
-    addQuestion,
-    getQuestionsByForum, 
-    updateQuestion, 
-    markQuestionAsCompleted 
+const deleteQuestion = async (req) => {
+  try {
+    const { userId, questionId } = req.params;
+    const result = await QuestionService.deleteQuestion(userId, questionId);
+    return result;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const closeQuestion = async (req) => {
+  try {
+    const { userId, questionId } = req.params;
+    const result = await QuestionService.closeQuestion(userId, questionId);
+    return result;
+  } catch (err) {
+    throw err;
+  }
+};
+
+module.exports = {
+  addQuestion,
+  getQuestionsByForum,
+  updateQuestion,
+  respondToQuestion,
+  deleteQuestion,
+  closeQuestion,
 };

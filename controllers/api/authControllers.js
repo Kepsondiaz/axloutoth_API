@@ -187,6 +187,20 @@
     }
   };
 
+  const getAllCompleteUsers = async (req, res) => {
+
+    try {
+      const result = await AuthService.getAllCompleteUsers();
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      if (error instanceof HttpError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Erreur interne du serveur." });
+      }
+    }
+  };
 
 
   module.exports = {
@@ -196,8 +210,10 @@
     authLoginUser,
     changePassword,
     resetPassword,
-    updateUserInfo
+    updateUserInfo,
+    getAllCompleteUsers
   };
+  
 
 
 

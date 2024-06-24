@@ -152,6 +152,8 @@ class AuthService {
           user.niveau = userData.niveau;
           user.serie = userData.serie;
           user.etablissement = userData.etablissement;
+          user.role = userData.role;
+
       
           await user.save();
       
@@ -377,6 +379,40 @@ class AuthService {
         return user;
     }
 
+
+    static async getAllCompleteUsers() {
+
+        try {
+          const users = await User.find({ 
+            niveau: { $ne: null }, 
+            serie: { $ne: null }, 
+            etablissement: { $ne: null } 
+           });
+          return {
+            success: true,
+            message: "Liste des utilisateurs complets",
+            users: users.map(user => ({
+              id: user.id,
+              phone: user.phone,
+              firstname: user.firstname,
+              lastname: user.lastname,
+              address: user.address,
+              sexe: user.sexe,
+              niveau: user.niveau,
+              serie: user.serie,
+              etablissement: user.etablissement,
+              role: user.role,
+              points: user.points,
+              referralCode: user.referralCode,
+              referralLink: user.referralLink,
+            })),
+          };
+        } catch (error) {
+          throw new HttpError(error, 500, "Erreur interne du serveur.");
+        }
+    }
+
+    
 
     /*
     static async getCurrentUser(token) {

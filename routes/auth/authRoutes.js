@@ -13,6 +13,8 @@ router.get("/", (req, res) => {
     res.json({ message: "Welcome to the authentication." });
 });
 
+router.get('/get-all-complete-users', auth.getAllCompleteUsers);
+
 /**
  * @desc Route to register user
  * @route POST api/users

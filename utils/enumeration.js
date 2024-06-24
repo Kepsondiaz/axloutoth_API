@@ -4,13 +4,13 @@ const SCIENTIFIC_SUBJECTS = Object.freeze([
     "mathematique",
     "physique",
     "chimie",
-    "SVT",
+    "svt",
   ]);
   
 const LITERARY_SUBJECTS = Object.freeze([
-    "francais",
+    "français",
     "philosophie",
 ]);
   
 module.exports = { SCIENTIFIC_SUBJECTS, LITERARY_SUBJECTS };
-  
+   

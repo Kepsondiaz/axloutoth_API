@@ -4,16 +4,24 @@ const { HttpError } = require("../../utils/exceptions.js");
 class SearchController {
 
   static async search(req, res) {
-    const { query } = req.query;
+
+    const { intitule } = req.body;
+
+    if (!intitule) {
+      return res.status(400).json({ erreur: 'Intitulé est requis' });
+    }
+
     try {
-      const result = await SearchService.search(query);
-      res.json(result);
-    } catch (error) {
-      if (error instanceof HttpError) {
-        res.status(error.statusCode).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: error.message });
+      const results = await SearchService.search(intitule);
+
+      if (results.length === 0) {
+        return res.status(404).json({ erreur: 'Aucun résultat trouvé' });
       }
+
+      return res.json(results);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ erreur: 'Erreur interne du serveur' });
     }
   }
 
