@@ -6,7 +6,7 @@ const {HttpError} =  require("../../utils/exceptions.js")
 class QuestionService {
 
     // Creation d'une question sur un forum
-    static async addQuestion(userId, forumId, content) {
+    static async addQuestion(userId, forumId, title, contenu) {
 
       try {
 
@@ -18,7 +18,7 @@ class QuestionService {
           throw new HttpError(null, 400, 'Seuls les étudiants et les modérateurs peuvent poser des questions');
         }
 
-        const question = new Question({ forumId, userId, content });
+        const question = new Question({ forumId, userId, title, contenu });
         await question.save();
 
         return {
@@ -52,7 +52,7 @@ class QuestionService {
     
    
     // Mise à jour d'une question 
-    static async updateQuestion(userId, questionId, content) {
+    static async updateQuestion(userId, questionId, title, contenu) {
       try {
 
         const user = await User.findById(userId);
@@ -68,7 +68,10 @@ class QuestionService {
         if (userRole === 'STUDENT' && question.userId.toString()!== userId) {
           throw new HttpError(null, 400, "Vous n'êtes pas le propriétaire de cette question");
         }
-        question.content = content;
+
+        question.title = title
+        question.contenu = contenu;
+
         await question.save();
 
         return {
@@ -83,19 +86,18 @@ class QuestionService {
       }
     }
 
+    
     // Répondre à une question
-    static async respondToQuestion(userId, questionId) {
+    static async respondToQuestion(userId, questionId, responseContenu) {
 
       try {
+        const user = await User.findById(userId);
+        const userRole = user.role;
 
-          const user = await User.findById(userId);
-
-          const userRole = user.role
-
-        if (userRole!== 'STUDENT' && userRole!== 'MODERATOR') {
-
+        if (userRole !== 'STUDENT' && userRole !== 'MODERATOR') {
           throw new HttpError(null, 400, 'Seuls les étudiants et les modérateurs peuvent répondre à des questions');
         }
+
         const question = await Question.findById(questionId);
 
         if (!question) {
@@ -106,23 +108,27 @@ class QuestionService {
           throw new HttpError(null, 400, 'Cette question est déjà cloturée');
         }
 
-      
-        question.participants.push(userId);
+        const response = {
+          contenu: responseContenu,
+          userId,
+          date: new Date(),
+        };
+
+        question.responses.push(response);
+        question.participants.push(userId)
+        question.nombreReponse  = (question.nombreReponse || 0) + 1
+
         await question.save();
 
-
         return {
-
           success: true,
           message: "Vous avez répondu à la question avec succès",
-          data: question
-
+          data: question,
         };
       } catch (err) {
         throw new HttpError(err, 500, `Impossible de répondre à la question : ${err.message}`);
       }
     }
-
 
    // Supprimer une question
     static async deleteQuestion(userId, questionId) {
@@ -165,7 +171,7 @@ class QuestionService {
       }
     }
 
-      // Cloturer une question
+    // Cloturer une question
     static async closeQuestion(userId, questionId) {
 
       try {
@@ -197,7 +203,40 @@ class QuestionService {
       }
     } 
 
+    
 
+    static async likeQuestion(userId, questionId) {
+      
+      try {
+        const question = await Question.findById(questionId);
+    
+        if (!question) {
+          throw new HttpError(null, 400, "Question non trouvée");
+        }
+    
+        // Vérifier si l'utilisateur a déjà liké la question
+        if (question.likes.includes(userId)) {
+          throw new HttpError(null, 400, "Vous avez déjà liké cette question");
+        }
+    
+        // Incrémenter le nombre de likes
+        question.nombreLike += 1;
+        question.likes.push(userId); // Ajouter l'userID à la liste des likes
+    
+        await question.save();
+    
+        return {
+          success: true,
+          message: "Vous avez liké la question avec succès",
+          data: question,
+        };
+      } catch (err) {
+        throw new HttpError(err, 500, `Impossible de liker la question : ${err.message}`);
+      }
+    }
+    
+
+   
 }
 
 

@@ -12,6 +12,8 @@ router.put("/update-question/:userId/:questionId", Question.updateQuestion)
 
 router.post("/complete-question/:userId/:questionId", Question.closeQuestion)
 
+router.post("/like-question/:userId/:questionId", Question.likeQuestion)
+
 
 
 

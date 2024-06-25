@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
 
 const QuestionSchema = new mongoose.Schema({
-  
+
+
+  title: {
+    type: String
+  },
+
   forumId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "forum",
@@ -10,11 +15,11 @@ const QuestionSchema = new mongoose.Schema({
   // celui qui à poser la question
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "users",
+    ref: "user",
     required: true,
   },
 
-  content: {
+  contenu: {
     type: String,
     required: true,
   },
@@ -36,6 +41,37 @@ const QuestionSchema = new mongoose.Schema({
     },
   ],
 
+  // Ceux qui ont liker une question
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    },
+  ],
+
+
+  responses: [{ 
+    contenu: String,
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+  }],
+
+  nombreReponse: {
+    type: Number,
+    default: 0
+  },
+  
+  nombreLike: {
+    type: Number,
+    default: 0
+  },
+ 
   isCompleted: {
     type: Boolean,
     default: false,
@@ -68,3 +104,9 @@ QuestionSchema.pre("deleteMany", skipDeleted);
 module.exports = {
   QuestionSchema,
 };
+
+
+
+// Endpoints a ajouter - nombre de reponses -nombre de question aime
+// nombre de like et nombre de reponse
+
