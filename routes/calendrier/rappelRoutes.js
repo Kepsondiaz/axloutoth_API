@@ -2,14 +2,19 @@ const express = require('express');
 const router = express.Router();
 const RappelController = require('../../controllers/calendrier/rappelController');
 
-router.get('/get-all-rappels/:userId', RappelController.getRappels)
+// Ajouter un nouveau rappel
+router.post('/rappels/:userId', RappelController.addRappel);
 
-router.post('/create-rappel/:userId', RappelController.createRappel);
+// Récupérer tous les rappels d'un utilisateur
+router.get('/rappels/user/:userId', RappelController.getRappelsByUser);
 
-router.put("/update-rappel/:rappelId", RappelController.updateRappel)
+// Récupérer un rappel par son ID
+router.get('/rappels/:rappelId', RappelController.getRappelById);
 
+// Mettre à jour un rappel par son ID
+router.put('/rappels/:rappelId', RappelController.updateRappel);
 
+// Supprimer un rappel par son ID
+router.delete('/rappels/:rappelId', RappelController.deleteRappel);
 
-
-module.exports = router
-
+module.exports = router;

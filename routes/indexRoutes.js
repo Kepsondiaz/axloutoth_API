@@ -10,19 +10,16 @@ const questionRoutes = require("./socket/questionRoutes")
 const compteARebours = require("./api/compteReboursRoutes")
 const rappelCalendrier = require("./calendrier/rappelRoutes")
 
-//router.use("/calendrier", rappelCalendrier)
+
+router.use("/auth", authRoutes);
+router.use("/calendrier", rappelCalendrier)
 
 /*
 
 router.use("/matieres", matiereRoutes);
-*/
-router.use("/auth", authRoutes);
+
 router.use("/forum", forumRoutes);
 router.use("/question",questionRoutes)
-
-
-
-/*
 
 router.use("/chapitres", chapitreRoutes);
 router.use("/search", searchRoutes);

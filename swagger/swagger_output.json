@@ -313,181 +313,12 @@
         }
       }
     },
-    "/api/v1/forum/create-forum/{userId}/{matiereId}": {
+    "/api/v1/calendrier/rappels/{userId}": {
       "post": {
         "description": "",
         "parameters": [
           {
             "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "matiereId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "description": {
-                  "example": "any"
-                },
-                "regle": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/v1/forum/get-all-forums": {
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/v1/forum/get-forum-by-id/{forumId}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "forumId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/v1/forum/update-forum/{userId}/{matiereId}/{forumId}": {
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "matiereId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "forumId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "any"
-                },
-                "description": {
-                  "example": "any"
-                },
-                "regle": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/v1/forum/delete-forum/{userId}/{forumId}": {
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "forumId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/v1/question/create-question/{userId}/{forumId}": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "forumId",
             "in": "path",
             "required": true,
             "type": "string"
@@ -501,7 +332,19 @@
                 "title": {
                   "example": "any"
                 },
-                "contenu": {
+                "description": {
+                  "example": "any"
+                },
+                "startTime": {
+                  "example": "any"
+                },
+                "endTime": {
+                  "example": "any"
+                },
+                "recurrence": {
+                  "example": "any"
+                },
+                "reminder": {
                   "example": "any"
                 }
               }
@@ -512,63 +355,18 @@
           "201": {
             "description": "Created"
           },
-          "400": {
-            "description": "Bad Request"
-          },
           "500": {
             "description": "Internal Server Error"
           }
         }
       }
     },
-    "/api/v1/question/response-question/{userId}/{questionId}": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "questionId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "responseContent": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/v1/question/get-questions-by-forum/{forumId}/": {
+    "/api/v1/calendrier/rappels/user/{userId}": {
       "get": {
         "description": "",
         "parameters": [
           {
-            "name": "forumId",
+            "name": "userId",
             "in": "path",
             "required": true,
             "type": "string"
@@ -578,27 +376,37 @@
           "200": {
             "description": "OK"
           },
-          "400": {
-            "description": "Bad Request"
-          },
           "500": {
             "description": "Internal Server Error"
           }
         }
       }
     },
-    "/api/v1/question/update-question/{userId}/{questionId}": {
+    "/api/v1/calendrier/rappels/{rappelId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "rappelId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
       "put": {
         "description": "",
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "questionId",
+            "name": "rappelId",
             "in": "path",
             "required": true,
             "type": "string"
@@ -609,7 +417,22 @@
             "schema": {
               "type": "object",
               "properties": {
-                "content": {
+                "title": {
+                  "example": "any"
+                },
+                "description": {
+                  "example": "any"
+                },
+                "startTime": {
+                  "example": "any"
+                },
+                "endTime": {
+                  "example": "any"
+                },
+                "recurrence": {
+                  "example": "any"
+                },
+                "reminder": {
                   "example": "any"
                 }
               }
@@ -620,57 +443,16 @@
           "200": {
             "description": "OK"
           },
-          "400": {
-            "description": "Bad Request"
-          },
           "500": {
             "description": "Internal Server Error"
           }
         }
-      }
-    },
-    "/api/v1/question/complete-question/{userId}/{questionId}": {
-      "post": {
+      },
+      "delete": {
         "description": "",
         "parameters": [
           {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "questionId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/v1/question/like-question/{userId}/{questionId}": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "questionId",
+            "name": "rappelId",
             "in": "path",
             "required": true,
             "type": "string"

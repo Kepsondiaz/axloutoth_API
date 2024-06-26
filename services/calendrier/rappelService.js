@@ -3,82 +3,99 @@ const User = require("../../models/auth/User");
 const { HttpError } = require("../../utils/exceptions");
 
 class RappelService {
+    static async addRappel(userId, { title, description, startTime, endTime, recurrence, reminder }) {
+        try {
+            // Vérifier si l'utilisateur existe
+            const user = await User.findById(userId);
+            if (!user) {
+                throw new HttpError(null, 404, 'Utilisateur non trouvé');
+            }
 
-  
-    static async getRappels(userId) {
-      try {
-        return Rappel.find({ userId, isDeleted: false });
-      } catch (err) {
-        throw new Error(err.message);
-      }
+            const rappel = new Rappel({ userId, title, description, startTime, endTime, recurrence, reminder });
+            await rappel.save();
+
+            return {
+                success: true,
+                message: "Rappel ajouté avec succès",
+                data: rappel
+            };
+        } catch (error) {
+            throw new HttpError(error, 500, `Impossible d'ajouter le rappel : ${error.message}`);
+        }
     }
-  
-    static async getRappel(userId, id) {
-      try {
-        return Rappel.findOne({ userId, _id: id, isDeleted: false });
-      } catch (err) {
-        throw new Error(err.message);
-      }
+
+    static async getRappelsByUser(userId) {
+        try {
+            // Vérifier si l'utilisateur existe
+            const user = await User.findById(userId);
+            if (!user) {
+                throw new HttpError(null, 404, 'Utilisateur non trouvé');
+            }
+
+            const rappels = await Rappel.find({ userId });
+            return rappels;
+        } catch (error) {
+            throw new HttpError(error, 500, `Impossible de récupérer les rappels : ${error.message}`);
+        }
     }
-  
-    static async createRappel(userId, title, description, startTime, endTime, recurrence, reminder) {
-      try {
-        const data = {
-          userId,
-          title,
-          description,
-          startTime,
-          endTime,
-          recurrence,
-          reminder
-        };
-        return Rappel.create(data);
-      } catch (err) {
-        throw new Error(err.message);
-      }
+
+    static async getRappelById(rappelId) {
+        try {
+            const rappel = await Rappel.findById(rappelId);
+            if (!rappel) {
+                throw new HttpError(null, 404, 'Rappel non trouvé');
+            }
+            return rappel;
+        } catch (error) {
+            if (error instanceof HttpError) {
+                throw error;
+            } else {
+                throw new HttpError(error, 500, `Impossible de récupérer le rappel : ${error.message}`);
+            }
+        }
     }
-  
-    static async updateRappel(id, title, description, startTime, endTime, recurrence, reminder) {
-      try {
-        const data = {
-          title,
-          description,
-          startTime,
-          endTime,
-          recurrence,
-          reminder
-        };
-        return Rappel.findOneAndUpdate({ 
-            _id: id, 
-            isDeleted: false },
-            data, 
-            { new: true }
-        );
-      } catch (err) {
-        throw new Error(err.message);
-      }
+
+    static async updateRappel(rappelId, { title, description, startTime, endTime, recurrence, reminder }) {
+        try {
+            // Construire l'objet updatedFields avec les champs fournis
+            const updatedFields = {
+                title,
+                description,
+                startTime,
+                endTime,
+                recurrence,
+                reminder
+            };
+
+            // Mise à jour du rappel avec les champs fournis
+            const updatedRappel = await Rappel.findByIdAndUpdate(rappelId, updatedFields, { new: true });
+            if (!updatedRappel) {
+                throw new HttpError(null, 404, 'Rappel non trouvé');
+            }
+            return {
+                success: true,
+                message: "Rappel mis à jour avec succès",
+                data: updatedRappel
+            };
+        } catch (error) {
+            throw new HttpError(error, 500, `Impossible de mettre à jour le rappel : ${error.message}`);
+        }
     }
-  
-    static async deleteRappel(id) {
-      try {
-        return Rappel.findOneAndUpdate({ 
-            _id: id, 
-            isDeleted: false },
-            { isDeleted: true }
-        );
-      } catch (err) {
-        throw new Error(err.message);
-      }
+
+    static async deleteRappel(rappelId) {
+        try {
+            const deletedRappel = await Rappel.findByIdAndDelete(rappelId);
+            if (!deletedRappel) {
+                throw new HttpError(null, 404, 'Rappel non trouvé');
+            }
+            return {
+                success: true,
+                message: "Rappel supprimé avec succès"
+            };
+        } catch (error) {
+            throw new HttpError(error, 500, `Impossible de supprimer le rappel : ${error.message}`);
+        }
     }
-  
-    static async getRappelsByDate(date) {
-      try {
-        return Rappel.find({ startTime: { $gte: date, $lt: date + 86400000 } });
-      } catch (err) {
-        throw new Error(err.message);
-      }
-    }
-  }
-  
+}
 
 module.exports = RappelService;

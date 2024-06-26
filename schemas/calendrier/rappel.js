@@ -41,7 +41,7 @@ const RappelSchema = new Schema({
         default: false 
     },
 
-    date:{
+    createdAt:{
         type: Date,
         default: Date.now()
     }
