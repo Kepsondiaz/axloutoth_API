@@ -9,13 +9,13 @@ const isEmail = (value) => {
 };
 
 const isRole = (value) => {
-  const role = ["STUDENT", "TEACHER", "ADMIN", "SUPERADMIN"];
+  const role = ["STUDENT", "ADMIN", "MODERATOR"];
   return role.includes(value);
 };
 
-const isPhone = (value) => {
-  const phone = /^[0-9]{12}$/;
-  return value.match(phone);
+const isPhone = (phone) => {
+  const phoneRegex = /^\+[1-9]\d{1,14}$/; // Regex pour un numéro de téléphone international
+  return phoneRegex.test(phone);
 };
 
 const hasInjection = (str) => {

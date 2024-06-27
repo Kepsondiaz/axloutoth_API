@@ -1,28 +1,47 @@
 const express = require("express");
 const connectDB = require("./config/db.config");
-const http = require("http");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const cors = require("cors");
-const app = express();
-const routes = require("./routes/indexRoutes");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger/swagger_output.json");
+const http = require("http");
+const socketio = require("socket.io");
+require("dotenv").config();
+
 const PORT_DEFAULT = 8000;
+
+// Connexion à la base de données
 connectDB();
-// Init middleware
+
+// Initialisation de l'application Express
+const app = express();
+
+// Création du serveur HTTP
+const server = http.createServer(app);
+
+// Configuration de socket.io
+const io = socketio(server);
+
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
 app.use(helmet());
 
-//chaque route de l'api commence par /api/v1
-app.use("/api/v1", routes);
+// Servir Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-/**
- * Normalize a port into a number, string, or false.
- * @param {any} val - Port value
- * @returns {number|string|boolean} - Normalized port
- */
+/* Importation et utilisation du gestionnaire de sockets
+const socketHandler = require("./sockets/socketHandler")(io);
+*/
+
+// Importation et utilisation des routes API
+const routes = require("./routes/indexRoutes");
+app.use("/api/v1", routes(io));
+
+// Fonction pour normaliser un port en un nombre, chaîne de caractères ou false.
 const normalizePort = (val) => {
   const port = parseInt(val, 10);
   if (isNaN(port)) return val;
@@ -31,13 +50,8 @@ const normalizePort = (val) => {
 };
 
 const PORT = normalizePort(process.env.PORT || PORT_DEFAULT);
-/**
- * Server listening on specified port.
- * @name ServerListening
- * @function
- * @memberof module:RandomIdeasAPI
- * @inner
- * @param {number|string} port - Port number
- */
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+// Démarrage du serveur et écoute sur le port spécifié
+server.listen(PORT, () => {
+  console.log(`Serveur démarré sur le port ${PORT}`);
+});
