@@ -3,7 +3,7 @@
 ## Structure du projet
 
 Voici la structure de notre projet :
-
+`
 ├── CODE_OF_CONDUCT.md
 ├── LICENCE.txt
 ├── README.md
@@ -18,6 +18,7 @@ Voici la structure de notre projet :
 ├── services
 └── utils
 ├── index.js
+`
 
 ### Détails des dossiers et fichiers
 
